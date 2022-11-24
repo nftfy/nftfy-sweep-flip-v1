@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Poppins:wght@300;400;500&display=swap');
+@import '~antd/dist/antd.less';
+
+// Ant Variables Customization
+// -> colors.less
+@primary-color: #e06285; // primary color for all components
+@gray-1: #ffffff;
+@gray-2: #fafafa;
+@gray-3: #f5f5f5;
+@gray-4: #f0f0f0;
+@gray-5: #d9d9d9;
+@gray-6: #bfbfbf;
+@gray-7: #8c8c8c;
+@gray-8: #595959;
+@gray-9: #434343;
+@gray-10: #262626;
+
+@html-selector: html;
+
+@{html-selector} {
+  --@{ant-prefix}-success-color: @green-6;
+  --@{ant-prefix}-error-color: @red-5;
+  --@{ant-prefix}-warning-color: @gold-6;
+  --@{ant-prefix}-info-color: @blue-6;
+}
+
+// -> base.less
+@border-color-base: @gray-5;
+@border-radius-base: 12px;
+@font-family: 'Poppins';
+@background-color-light: @gray-1;
+@background-color-base: @gray-3;
+@disabled-color: @gray-6;
+
+// -> spacements.less
+@padding-lg: 24px;
+@padding-md: 16px;
+@padding-sm: 12px;
+@padding-xs: 8px;
+@padding-xss: 4px;
+
+// -> layout.body.less
+@layout-body-background: @gray-1;
+
+// -> layout.header.less
+@layout-header-height: auto;
+@layout-header-background: @gray-1;
+@layout-header-padding: 12px 24px;
+
+// -> layout.page.less
+@layout-page-header-padding: 1.125rem 1.5rem;
+
+// -> layout.footer.less
+@layout-footer-background: @gray-1;
+@layout-footer-padding: 24px;
+
+// -> menu.custom.less
+.ant-menu-horizontal {
+  border: 1px solid transparent;
+}
+
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-active::after,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item:hover::after,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-selected::after {
+  border-bottom: 1px solid transparent;
+}
+
+.ant-menu-sub.ant-menu-inline > .ant-menu-item {
+  padding-left: 24px !important;
+}
+
+// -> page.header.less
+@page-header-padding: 0;
+
+// -> page.header.custom.less
+.ant-page-header-heading-title {
+  font-weight: 500 !important;
+}
+
+// -> card.less
+@card-padding-base: 16px;
+@card-radius: 16px;
+
+// -> card.custom.less
+.ant-card {
+  border-color: @gray-5;
+}
+
+// -> typography.less
+@typography-title-margin-bottom: 0;
+@typography-title-margin-top: 0;
+@typography-title-font-weight: 500;
+
+// -> typography.text.less
+@text-color-secondary: @gray-7;
+@text-color: @gray-10;
+
+// -> modal.less
+@modal-footer-padding-vertical: 16px;
+@modal-footer-padding-horizontal: 24px;
+@modal-border-radius: 12px;
+
+// -> tabs.less
+@tabs-bar-margin: 0px;
+.ant-tabs > .ant-tabs-nav {
+  margin-bottom: 24px;
+}
+
+// -> form.less
+@form-item-margin-bottom: 0px;
+
+// -> checkbox.less
+@checkbox-border-radius: 2px;
+
+// -> select.less
+@select-background: @primary-1;
+
+// -> table.less
+@table-header-bg: @gray-2;
+
+// -> divider.less
+@divider-color: @gray-4;
+
+// Make theme variables available on CSS for use in Styled Components
+// To Do: it should dinamically create a self reference to css variables
+:root {
+  --modal-border-radius: @modal-border-radius;
+  --border-radius-base: @border-radius-base;
+
+  --background-color-light: @background-color-light;
+  --table-header-bg: @table-header-bg;
+  --background-color-base: @background-color-base;
+  --divider-color: @divider-color;
+  --border-color-base: @border-color-base;
+  --disabled-color: @disabled-color;
+  --text-color-secondary: @text-color-secondary;
+  --text-color: @text-color;
+
+  --select-background: @select-background;
+
+  --typography-title-margin-bottom: @typography-title-margin-bottom;
+
+  --padding-lg: @padding-lg;
+  --padding-md: @padding-md;
+  --padding-sm: @padding-sm;
+  --padding-xs: @padding-xs;
+  --padding-xss: @padding-xss;
+
+  --card-padding-base: @card-padding-base;
+
+  --layout-header-height: @layout-header-height;
+  --layout-header-background: @layout-header-background;
+  --layout-header-padding: @layout-header-padding;
+  --layout-page-header-padding: @layout-page-header-padding;
+
+  --primary-color: @primary-color;
+  --success-color: @success-color;
+  --warning-color: @warning-color;
+  --error-color: @error-color;
+  --info-color: @info-color;
+  --white: @white;
+  --black: @black;
+
+  --gray-1: @gray-1;
+  --gray-2: @gray-2;
+  --gray-3: @gray-3;
+  --gray-4: @gray-4;
+  --gray-5: @gray-5;
+  --gray-6: @gray-6;
+  --gray-7: @gray-7;
+  --gray-8: @gray-8;
+  --gray-9: @gray-9;
+  --gray-10: @gray-10;
+
+  --screen-xs: @screen-xs;
+  --screen-sm: @screen-sm;
+  --screen-md: @screen-md;
+  --screen-lg: @screen-lg;
+  --screen-xl: @screen-xl;
+  --screen-xxl: @screen-xxl;
+}
