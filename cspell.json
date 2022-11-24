@@ -1,0 +1,35 @@
+{
+  "version": "1",
+  "language": "en",
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/vscode-extension/**",
+    "**/.git/**",
+    ".vscode",
+    "report",
+    "**.mock.**",
+    "components",
+    "pages",
+    "package.json"
+  ],
+  "words": [
+    "antd",
+    "bignumber",
+    "ethersproject",
+    "fractionalizer",
+    "fractionalizers",
+    "jazzicon",
+    "luxon",
+    "Millis",
+    "nftfy",
+    "nftfyorg",
+    "offchain",
+    "rockpool",
+    "unstake",
+    "wagmi",
+    "Executin",
+    "isLoading",
+    "buyfloor",
+    "hexlify"
+  ]
+}
