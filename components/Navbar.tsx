@@ -58,42 +58,11 @@ const Navbar: FC = () => {
   }
 
   const isGlobal = !COMMUNITY && !COLLECTION && !COLLECTION_SET_ID
-  const filterableCollection = isGlobal || COMMUNITY || COLLECTION_SET_ID
   const themeSwitcherEnabled = THEME_SWITCHING_ENABLED
 
   useEffect(() => {
     setShowLinks(externalLinks.length > 0)
   }, [])
-
-  useEffect(() => {
-    if (filterableCollection) {
-      const href = getInitialSearchHref()
-
-      fetch(href).then(async res => {
-        let initialResults = undefined
-
-        if (res.ok) {
-          initialResults = (await res.json()) as paths['/search/collections/v1']['get']['responses']['200']['schema']
-        }
-
-        const smallCommunity =
-          initialResults?.collections && initialResults.collections.length >= 2 && initialResults.collections.length <= 10
-
-        const hasCommunityDropdown = !DEFAULT_TO_SEARCH && (COMMUNITY || COLLECTION_SET_ID) && smallCommunity
-
-        if (hasCommunityDropdown) {
-          setFilterComponent(<CommunityDropdown collections={initialResults?.collections} defaultCollectionId={COLLECTION} />)
-          setHasCommunityDropdown(true)
-        } else {
-          setShowLinks(false)
-          setHasCommunityDropdown(false)
-          !showDesktopSearch
-            ? setFilterComponent(<SearchMenu communityId={COMMUNITY} initialResults={initialResults} />)
-            : setFilterComponent(<SearchCollections communityId={COMMUNITY} initialResults={initialResults} />)
-        }
-      })
-    }
-  }, [filterableCollection, showDesktopSearch])
 
   if (!isMounted) {
     return null
@@ -117,22 +86,18 @@ const Navbar: FC = () => {
           ))}
         </div>
       )}
-      {(hasCommunityDropdown || showDesktopSearch) && (
+      {/* {(hasCommunityDropdown || showDesktopSearch) && (
         <div className='absolute top-0 left-0 right-0 flex h-full w-full items-center justify-center'>
           {filterComponent && filterComponent}
         </div>
-      )}
+      )} */}
       {isMobile ? (
         <div className='ml-auto flex'>
-          {!hasCommunityDropdown && filterComponent && filterComponent}
-          <CartMenu />
           <HamburgerMenu externalLinks={externalLinks} />
         </div>
       ) : (
         <div className='z-10 ml-auto shrink-0 md:flex md:gap-2'>
           {!hasCommunityDropdown && !showDesktopSearch && <div className='ml-auto flex'>{filterComponent && filterComponent}</div>}
-          <CartMenu />
-          {hasCommunityDropdown && themeSwitcherEnabled && !showDesktopSearch ? null : <ListItemButton />}
           <ConnectWallet />
           <ThemeSwitcher />
         </div>
