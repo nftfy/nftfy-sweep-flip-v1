@@ -38,6 +38,7 @@
     "@types/styled-components": "^5.1.26",
     "axios": "^1.2.0",
     "bignumber.js": "^9.1.0",
+    "dotenv": "^16.0.3",
     "downshift": "^6.1.7",
     "ethers": "^5.7.1",
     "graphql": "^16.6.0",
