@@ -1,0 +1,11 @@
+.next
+node_modules
+*.md
+context
+hooks
+lib
+styles
+pages
+public
+recoil
+colors.js
