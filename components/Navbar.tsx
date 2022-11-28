@@ -5,6 +5,7 @@ import useMounted from 'hooks/useMounted'
 import setParams from 'lib/params'
 import dynamic from 'next/dynamic'
 import { FC, ReactElement, useEffect, useState } from 'react'
+import { Col, Image, Layout, Menu, MenuProps, Row, Space, Typography } from 'antd'
 import CartMenu from './CartMenu'
 import ConnectWallet from './ConnectWallet'
 import HamburgerMenu from './HamburgerMenu'
@@ -34,6 +35,8 @@ function getInitialSearchHref() {
 
   return setParams(pathname, query)
 }
+
+const { Header: NavbarAntd } = Layout
 
 const Navbar: FC = () => {
   const isMounted = useMounted()
@@ -69,40 +72,17 @@ const Navbar: FC = () => {
   }
 
   return (
-    <nav className='sticky top-0 z-[1000] col-span-full flex items-center justify-between gap-2 border-b border-[#D4D4D4] bg-white px-6 py-4 dark:border-neutral-600 dark:bg-black md:gap-3 md:py-6 md:px-16'>
-      <NavbarLogo className='z-10 max-w-[300px]' />
-      {showLinks && (
-        <div className='z-10 ml-12 hidden items-center gap-11 lg:flex'>
-          {externalLinks.map(({ name, url }) => (
-            <a
-              key={url}
-              href={url}
-              rel='noopener noreferrer'
-              target='_blank'
-              className='text-dark reservoir-h6 hover:text-[#1F2937] dark:text-white'
-            >
-              {name}
-            </a>
-          ))}
-        </div>
-      )}
-      {/* {(hasCommunityDropdown || showDesktopSearch) && (
-        <div className='absolute top-0 left-0 right-0 flex h-full w-full items-center justify-center'>
-          {filterComponent && filterComponent}
-        </div>
-      )} */}
-      {isMobile ? (
-        <div className='ml-auto flex'>
-          <HamburgerMenu externalLinks={externalLinks} />
-        </div>
-      ) : (
-        <div className='z-10 ml-auto shrink-0 md:flex md:gap-2'>
-          {!hasCommunityDropdown && !showDesktopSearch && <div className='ml-auto flex'>{filterComponent && filterComponent}</div>}
+    <NavbarAntd>
+      <Row align='middle'>
+        <Col style={{ display: 'flex', justifyItems: 'baseline' }} span={8}>
+          <NavbarLogo/>
+        </Col>
+        <Col style={{ display: 'flex', justifyContent: 'end', alignItems: 'center', gap: '8px' }} span={16}>
           <ConnectWallet />
           <ThemeSwitcher />
-        </div>
-      )}
-    </nav>
+        </Col>
+      </Row>
+    </NavbarAntd>
   )
 }
 

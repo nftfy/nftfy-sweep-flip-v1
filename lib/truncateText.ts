@@ -8,7 +8,7 @@
  * with the middle characters removed.
  */
 function truncateAddress(address: string, shrinkInidicator?: string) {
-  return address.slice(0, 4) + (shrinkInidicator || '…') + address.slice(-4)
+  return address.slice(0, 3) + (shrinkInidicator || '…') + address.slice(-3)
 }
 
 /**
