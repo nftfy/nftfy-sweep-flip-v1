@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Poppins:wght@300;400;500&display=swap');
+@import '~antd/dist/antd.variable.less';
+@import '~antd/lib/style/themes/default.less';
+@import '~antd/dist/antd.less';
+// Customization
+@import 'modal.less';
+@import 'radius.less';
+@import 'spacements.less';
+@import 'colors.less';
+@import 'header.less';
+@import 'footer.less';
+@import 'card.less';
+@import 'general.less';
+@import 'tabs.less';
+@import 'table.less';
+
+// Make theme variables available on CSS for use in Styled Components
+:root {
+  --modal-border-radius: @modal-border-radius;
+  --border-radius-base: @border-radius-base;
+
+  --background-color-light: @background-color-light;
+  --table-header-bg: @table-header-bg;
+  --background-color-base: @background-color-base;
+  --divider-color: @divider-color;
+  --border-color-base: @border-color-base;
+  --disabled-color: @disabled-color;
+  --text-color-secondary: @text-color-secondary;
+  --text-color: @text-color;
+
+  --select-background: @select-background;
+
+  --typography-title-margin-bottom: @typography-title-margin-bottom;
+
+  --padding-lg: @padding-lg;
+  --padding-md: @padding-md;
+  --padding-sm: @padding-sm;
+  --padding-xs: @padding-xs;
+  --padding-xss: @padding-xss;
+
+  --card-padding-base: @card-padding-base;
+
+  --layout-header-height: @layout-header-height;
+  --layout-header-background: @layout-header-background;
+  --layout-header-padding: @layout-header-padding;
+  --layout-page-header-padding: @layout-page-header-padding;
+
+  --primary-color: @primary-color;
+  --success-color: @success-color;
+  --warning-color: @warning-color;
+  --error-color: @error-color;
+  --info-color: @info-color;
+  --white: @white;
+  --black: @black;
+
+  --gray-1: @gray-1;
+  --gray-2: @gray-2;
+  --gray-3: @gray-3;
+  --gray-4: @gray-4;
+  --gray-5: @gray-5;
+  --gray-6: @gray-6;
+  --gray-7: @gray-7;
+  --gray-8: @gray-8;
+  --gray-9: @gray-9;
+  --gray-10: @gray-10;
+
+  --screen-xs: @screen-xs;
+  --screen-sm: @screen-sm;
+  --screen-md: @screen-md;
+  --screen-lg: @screen-lg;
+  --screen-xl: @screen-xl;
+  --screen-xxl: @screen-xxl;
+}
