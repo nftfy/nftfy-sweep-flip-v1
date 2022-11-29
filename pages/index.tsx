@@ -1,4 +1,5 @@
 import { useMediaQuery } from '@react-hookz/web'
+import { GetServerSideProps } from 'next'
 import { paths } from '@reservoir0x/reservoir-kit-client'
 import Layout from 'components/Layout'
 import SortTrendingCollections from 'components/SortTrendingCollections'
@@ -74,6 +75,24 @@ const Home: NextPage<Props> = ({ fallback }) => {
         {title}
         {description}
         {image}
+        <meta property='title' content={`Sweep and flip ${title}`} />
+        <meta name='description' content='app.rewards.nftfy.org is a decentralized protocol where you can own rewards staking tokens.' />
+        <meta property='og:type' content='website' />
+        <meta property='og:url' content='https://app.rewards.nftfy.org/' />
+        <meta property='og:title' content='Nftfy - Rockpool' />
+        <meta
+          property='og:description'
+          content='app.rewards.nftfy.org is a decentralized protocol where you can own rewards staking tokens.'
+        />
+        <meta property='og:image' content='https://nftfy.org/nftfy.jpg' />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:url' content='https://nftfy.org/' />
+        <meta name='twitter:title' content='Nftfy - Rockpool' />
+        <meta
+          name='twitter:description'
+          content='app.rewards.nftfy.org is a decentralized protocol where you can own rewards staking tokens.'
+        />
+        <meta name='twitter:image' content='https://nftfy.org/nftfy.jpg' />
       </Head>
       <header className="col-span-full mb-12 mt-[66px] px-4 md:mt-40 lg:px-0">
         <h1 className="reservoir-h1 text-center dark:text-white">{tagline}</h1>
@@ -93,7 +112,7 @@ export const getStaticProps: GetStaticProps<{
   fallback: {
     collections: paths['/collections/v5']['get']['responses']['200']['schema']
   }
-}> = async () => {
+}> = async (ctx) => {
   const options: RequestInit | undefined = {}
 
   if (RESERVOIR_API_KEY) {
