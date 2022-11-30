@@ -6,6 +6,7 @@ import Navbar from './Navbar'
 import styled from 'styled-components'
 import NetworkWarning from './NetworkWarning'
 import { Footer } from './Footer'
+import { CollectionSelectModal } from '@components/collection-select/CollectionSelectModal'
 
 const { Content } = LayoutAntd
 
@@ -46,7 +47,10 @@ const Layout: FC<LayoutProps> = ({ chainId, children }) => {
         <Navbar />
         <Divider />
         <Body>
-          <Main>{children}</Main>
+          <Main>
+            {children}
+            <CollectionSelectModal chainId={chainId}/>
+          </Main>
         </Body>
         <Footer />
       </LayoutAntd>
