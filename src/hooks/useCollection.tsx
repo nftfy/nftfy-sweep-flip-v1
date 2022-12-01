@@ -7,15 +7,14 @@ type Collections = paths['/collections/v5']['get']['responses']['200']['schema']
 type Query = paths['/collections/v5']['get']['parameters']['query']
 
 export const useCollections = (chainId: number) => {
-  const [continuation, setContinuation] = useState<string | undefined>(undefined)
   const [collections, setCollections] = useState<any| undefined>(undefined)
+  const [continuation, setContinuation] = useState<string | undefined>(undefined)
   const [hasMore, setHasMore] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
 
   const url = new URL('https://api.reservoir.tools/collections/v5')
 
   async function fetchCollections (nextPage: boolean, id?: string, name?:string) {
-    console.log('start')
     setLoading(true)
 
     const options: RequestInit | undefined = {}

@@ -15,6 +15,7 @@ interface Erc721CollectionImageProps {
   shape?: 'circle' | 'square'
   className?: string
   loading?: boolean
+  selected?: boolean
 }
 
 export function TokenImage({
@@ -26,6 +27,7 @@ export function TokenImage({
   shape = 'circle',
   borderSize = '0',
   borderColor = 'transparent',
+  selected = false
 }: Erc721CollectionImageProps) {
   const [hasFailed, setHasFailed] = useState(false)
   const [isLoading, setIsLoading] = useState(loading)
@@ -63,7 +65,7 @@ export function TokenImage({
       {(hasFailed || !src) && shape === 'square' && (
         <AntImage width={diameter} height={diameter} src='error' fallback={imageFailedFallback} />
       )}
-      {!hasFailed && !isLoading && <Img src={loadedSrc} className={className} diameter={diameter} />}
+      {!hasFailed && !isLoading && <Img src={loadedSrc} className={className} diameter={diameter} selected={selected || false} />}
     </ContainerImg>
   )
 }
@@ -87,10 +89,17 @@ const { ContainerImg, Img } = {
             border-radius: 12px;
           `};
   `,
-  Img: styled.img<{ diameter: number }>`
+  Img: styled.img<{ selected: boolean, diameter: number }>`
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: 50% 50%;
+    ${({ selected }) =>
+    selected
+      ? css`
+          filter: opacity(50%);
+        `
+      : css``
+    };
   `
 }

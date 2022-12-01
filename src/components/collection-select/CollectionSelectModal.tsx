@@ -10,6 +10,7 @@ export const CollectionSelectModalVar = makeVar(true) // set false
 
 export function CollectionSelectModal() {
   const CollectionSelectModal = useReactiveVar(CollectionSelectModalVar)
+  const [mounted, setMounted] = useState<boolean>(false)
 
   const [selectedCollection, setSelectedCollection] = useState<ReservoirCollection | undefined>(undefined)
   const [commonCollections, setCommonCollections] = useState<any[] | undefined>(undefined)
@@ -17,8 +18,15 @@ export function CollectionSelectModal() {
   const { fetchCollections, collections, loading} = useCollections(5)
 
   useEffect(() => {
-    fetchCollections(false).then(() => setCommonCollections(collections?.slice(0, 5)))
+    setMounted(false)
+    fetchCollections(false).then(() => {
+      setMounted(true)
+    })
   }, [])
+
+  useEffect(() => {
+    setCommonCollections(collections?.slice(0, 5))
+  }, [mounted])
 
   const handleCancel = useCallback(() => {
     CollectionSelectModalVar(false)
@@ -70,7 +78,7 @@ export function CollectionSelectModal() {
           <Space wrap>
             {commonCollections && commonCollections.length > 0 && commonCollections.map((item: ReservoirCollection) => { 
               return <Button key={item.id} type={selectedCollection?.id === item?.id ? 'primary' : undefined} size='large' onClick={() => handleSelect(item)}>
-                <NftButtonContainer>
+                <CollectionButtonContainer>
                   <TokenImage
                     src={item?.image}
                     diameter={24}
@@ -80,13 +88,13 @@ export function CollectionSelectModal() {
                     borderColor='var(--gray-7)'
                   />
                   <Typography.Text>{item?.name}</Typography.Text>
-                </NftButtonContainer>
+                </CollectionButtonContainer>
               </Button>})}
           </Space>
         </Space>
         <hr/>
         {!loading && collections && collections.length > 0 && collections.map((item: ReservoirCollection) => {
-          if(selectedCollection?.id === item?.id) { return <NftListContainer key={item.id} onClick={() => handleSelect(item)}>
+          if(selectedCollection?.id === item?.id) { return <CollectionListContainer key={item.id} onClick={() => handleSelect(item)}>
           <TokenImage
             src={item?.image}
             diameter={32}
@@ -94,10 +102,11 @@ export function CollectionSelectModal() {
             loading={loading}
             borderSize='1px'
             borderColor='var(--gray-7)'
+            selected={true}
           />
-          <TextNftListSelected>{item?.name}</TextNftListSelected>
-        </NftListContainer>} else {
-          return <NftListContainer key={item.id} onClick={() => handleSelect(item)}>
+          <TextCollectionListSelected>{item?.name}</TextCollectionListSelected>
+        </CollectionListContainer>} else {
+          return <CollectionListContainer key={item.id} onClick={() => handleSelect(item)}>
           <TokenImage
             src={item?.image}
             diameter={32}
@@ -105,9 +114,10 @@ export function CollectionSelectModal() {
             loading={loading}
             borderSize='1px'
             borderColor='var(--gray-7)'
+            selected={false}
           />
-          <TextNftList><Text>{item?.name}</Text></TextNftList>
-        </NftListContainer>
+          <TextCollectionList><Text>{item?.name}</Text></TextCollectionList>
+        </CollectionListContainer>
         }
          })}
       </Content>
@@ -117,7 +127,7 @@ export function CollectionSelectModal() {
   )
 }
 
-const { Content, ModalTitle, NftListContainer, TextNftList, TextNftListSelected, NftButtonContainer } = {
+const { Content, ModalTitle, CollectionListContainer, TextCollectionList, TextCollectionListSelected, CollectionButtonContainer } = {
   Content: styled.div`
     width: 100%;
     display: flex;
@@ -134,24 +144,24 @@ const { Content, ModalTitle, NftListContainer, TextNftList, TextNftListSelected,
     font-size: 20px;
   }
   `,
-  NftListContainer: styled.a`
+  CollectionListContainer: styled.a`
     display: flex;
     gap: 20px;
     align-items: center;
   `,
-  TextNftList: styled.div`
+  TextCollectionList: styled.div`
     font-weight: 600;
     font-size: 14px;
     line-height: 22px;
     color: black
 `,
-  TextNftListSelected: styled.div`
+  TextCollectionListSelected: styled.div`
     font-weight: 600;
     font-size: 14px;
     line-height: 22px;
     color: var(--gray-7)
   `,
-  NftButtonContainer: styled.div`
+  CollectionButtonContainer: styled.div`
     display: flex;
     gap: 10px;
     align-items: center;
