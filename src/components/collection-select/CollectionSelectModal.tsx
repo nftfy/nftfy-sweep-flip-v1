@@ -21,8 +21,6 @@ export function CollectionSelectModal() {
 
   const { fetchCollections, collections, loading} = useCollections(5)
 
-  console.log(collections, 'collect')
-
   useEffect(() => {
     fetchCollections().then(() => setCommonCollections(collections?.slice(0, 5)))
   }, [])
@@ -31,14 +29,12 @@ export function CollectionSelectModal() {
     CollectionSelectModalVar(false)
   }, [])
 
-  const [search, setSearch] = useState<string | undefined>(undefined)
   const [id, setId] = useState<string | undefined>(undefined)
   const [name, setName] = useState<string | undefined>(undefined)
 
-  const handleSearch = (text: any) => {
-    console.log(text, 'text')
-    setSearch(text)
-    if(search?.match(/^0x[a-fA-F0-9]{40}$/g)) {
+  const handleSearch = (search: string) => {
+    setSelectedCollection(undefined)
+    if(search.match(/^0x[a-fA-F0-9]{40}$/g)) {
       setId(search)
     } else {
       setName(search)
@@ -51,7 +47,6 @@ export function CollectionSelectModal() {
 
   const handleSelect = async (item: ReservoirCollection) => {
     setSelectedCollection(item)
-    console.log(item)
   }
 
   const { Search } = Input
@@ -70,12 +65,12 @@ export function CollectionSelectModal() {
         <Search
           placeholder='Search name or paste address'
           onSearch={text => handleSearch(text)}
-          loading={undefined}
+          loading={loading}
           allowClear
+          size='large'
           style={{ width: '100%' }}
         />
         <Text>Common collections</Text>
-        {loading && <p>loading</p>}
         <Space direction="vertical">
           <Space wrap>
             {commonCollections && commonCollections.length > 0 && commonCollections.map((item: any) => { 
@@ -85,7 +80,7 @@ export function CollectionSelectModal() {
                     src={item?.image}
                     diameter={24}
                     address={item?.id}
-                    loading={undefined}
+                    loading={loading}
                     borderSize='1px'
                     borderColor='var(--gray-7)'
                   />
@@ -95,13 +90,13 @@ export function CollectionSelectModal() {
           </Space>
         </Space>
         <hr/>
-        {collections && collections.length > 0 && collections.map((item: any) => {
+        {!loading && collections && collections.length > 0 && collections.map((item: any) => {
           if(selectedCollection?.id === item?.id) { return <NftListContainer onClick={() => handleSelect(item)}>
           <TokenImage
             src={item?.image}
             diameter={32}
             address={item?.id}
-            loading={undefined}
+            loading={loading}
             borderSize='1px'
             borderColor='var(--gray-7)'
           />
@@ -112,7 +107,7 @@ export function CollectionSelectModal() {
             src={item?.image}
             diameter={32}
             address={item?.id}
-            loading={undefined}
+            loading={loading}
             borderSize='1px'
             borderColor='var(--gray-7)'
           />
