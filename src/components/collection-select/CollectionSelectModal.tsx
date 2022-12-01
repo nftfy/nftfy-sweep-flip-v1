@@ -1,17 +1,12 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 import { ReservoirCollection } from '@appTypes/ReservoirCollection'
-import { paths } from '@reservoir0x/reservoir-kit-client'
 import { TokenImage } from '@components/shared/TokenImage'
-import { Button, Card, Col, Form, Input, InputNumber, Modal, Row, Slider, Space, Switch, Typography } from 'antd'
-import usePaginatedCollections from '../../hooks/usePaginatedCollections'
-import { useRouter } from 'next/router'
+import { Button, Input, Modal, Space, Typography } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useCollections } from 'src/hooks/useCollection'
 
 export const CollectionSelectModalVar = makeVar(true) // set false
-
-type Collections = paths['/collections/v5']['get']['responses']['200']['schema']
 
 export function CollectionSelectModal() {
   const CollectionSelectModal = useReactiveVar(CollectionSelectModalVar)
@@ -22,7 +17,7 @@ export function CollectionSelectModal() {
   const { fetchCollections, collections, loading} = useCollections(5)
 
   useEffect(() => {
-    fetchCollections().then(() => setCommonCollections(collections?.slice(0, 5)))
+    fetchCollections(false).then(() => setCommonCollections(collections?.slice(0, 5)))
   }, [])
 
   const handleCancel = useCallback(() => {
@@ -42,7 +37,7 @@ export function CollectionSelectModal() {
   }
 
   useEffect(() => {
-    fetchCollections(id, name)
+    fetchCollections(false, id, name)
   }, [id, name])
 
   const handleSelect = async (item: ReservoirCollection) => {
@@ -73,8 +68,8 @@ export function CollectionSelectModal() {
         <Text>Common collections</Text>
         <Space direction="vertical">
           <Space wrap>
-            {commonCollections && commonCollections.length > 0 && commonCollections.map((item: any) => { 
-              return <Button type={selectedCollection?.id === item?.id ? 'primary' : undefined} size='large' onClick={() => handleSelect(item)}>
+            {commonCollections && commonCollections.length > 0 && commonCollections.map((item: ReservoirCollection) => { 
+              return <Button key={item.id} type={selectedCollection?.id === item?.id ? 'primary' : undefined} size='large' onClick={() => handleSelect(item)}>
                 <NftButtonContainer>
                   <TokenImage
                     src={item?.image}
@@ -90,8 +85,8 @@ export function CollectionSelectModal() {
           </Space>
         </Space>
         <hr/>
-        {!loading && collections && collections.length > 0 && collections.map((item: any) => {
-          if(selectedCollection?.id === item?.id) { return <NftListContainer onClick={() => handleSelect(item)}>
+        {!loading && collections && collections.length > 0 && collections.map((item: ReservoirCollection) => {
+          if(selectedCollection?.id === item?.id) { return <NftListContainer key={item.id} onClick={() => handleSelect(item)}>
           <TokenImage
             src={item?.image}
             diameter={32}
@@ -102,7 +97,7 @@ export function CollectionSelectModal() {
           />
           <TextNftListSelected>{item?.name}</TextNftListSelected>
         </NftListContainer>} else {
-          return <NftListContainer onClick={() => handleSelect(item)}>
+          return <NftListContainer key={item.id} onClick={() => handleSelect(item)}>
           <TokenImage
             src={item?.image}
             diameter={32}

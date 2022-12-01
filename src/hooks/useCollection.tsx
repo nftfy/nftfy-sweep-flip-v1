@@ -7,14 +7,14 @@ type Collections = paths['/collections/v5']['get']['responses']['200']['schema']
 type Query = paths['/collections/v5']['get']['parameters']['query']
 
 export const useCollections = (chainId: number) => {
-  const [data, setData] = useState<any>()
-  const [collections, setCollections] = useState<any>()
+  const [continuation, setContinuation] = useState<string | undefined>(undefined)
+  const [collections, setCollections] = useState<any| undefined>(undefined)
   const [hasMore, setHasMore] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
 
   const url = new URL('https://api.reservoir.tools/collections/v5')
 
-  async function fetchCollections (id?: string, name?:string) {
+  async function fetchCollections (nextPage: boolean, id?: string, name?:string) {
     console.log('start')
     setLoading(true)
 
@@ -33,25 +33,18 @@ export const useCollections = (chainId: number) => {
 
     if (id) query.id = id
     if (name) query.name = name
-
-    console.log(query, 'query')
+    if (nextPage) query.continuation = continuation
 
     const href = setParams(url, query)
-
-    console.log(href, 'href')
   
     const res = await fetch(href, options)
 
-    console.log(res, 'res')
-
     const data = (await res.json()) as Collections
 
-    console.log(data, 'data')
-
-    setData(data)
     setCollections(data.collections)
 
     if(data.continuation) {
+      setContinuation(data.continuation)
       setHasMore(true)
     }
 
