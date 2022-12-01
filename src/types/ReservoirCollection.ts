@@ -1,5 +1,5 @@
 export interface ReservoirCollection {
-  id: string,
+  id?: string,
   slug?: string,
   createdAt?: string,
   name?: string,
@@ -20,7 +20,7 @@ export interface ReservoirCollection {
     recipient?: string
   },
   lastBuy?: {
-    value?: string
+    value?: number
   },
   floorAsk?: {
     id?: string,

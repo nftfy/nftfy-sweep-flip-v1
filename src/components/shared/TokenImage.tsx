@@ -2,13 +2,11 @@ import { Image as AntImage, Skeleton } from 'antd'
 import { useEffect, useState } from 'react'
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 import styled, { css } from 'styled-components'
-// import { useCollectionDetails } from '../../hooks/query/erc721Collection/useCollectionDetails'
-// import { TokenTypeEnum } from '../../types/models/enums/TokenTypeEnum'
 import { imageFailedFallback } from './ImageFailedFallback'
 
 interface Erc721CollectionImageProps {
   src?: string
-  address: string
+  address?: string
   diameter: number
   borderSize?: string
   borderColor?: string
