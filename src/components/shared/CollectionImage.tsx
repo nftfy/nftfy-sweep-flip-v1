@@ -4,7 +4,7 @@ import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 import styled, { css } from 'styled-components'
 import { imageFailedFallback } from './ImageFailedFallback'
 
-interface Erc721CollectionImageProps {
+interface CollectionImageProps {
   src?: string
   address?: string
   diameter: number
@@ -16,7 +16,7 @@ interface Erc721CollectionImageProps {
   selected?: boolean
 }
 
-export function TokenImage({
+export function CollectionImage({
   address,
   src,
   className = '',
@@ -26,7 +26,7 @@ export function TokenImage({
   borderSize = '0',
   borderColor = 'transparent',
   selected = false
-}: Erc721CollectionImageProps) {
+}: CollectionImageProps) {
   const [hasFailed, setHasFailed] = useState(false)
   const [isLoading, setIsLoading] = useState(loading)
   const [loadedSrc, setLoadedSrc] = useState<string | undefined>(undefined)

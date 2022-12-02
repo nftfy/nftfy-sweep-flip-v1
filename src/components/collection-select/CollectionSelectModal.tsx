@@ -1,6 +1,6 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 import { ReservoirCollection } from '@appTypes/ReservoirCollection'
-import { TokenImage } from '@components/shared/TokenImage'
+import { CollectionImage } from '@components/shared/CollectionImage'
 import { Button, Input, Modal, Space, Typography } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
@@ -15,7 +15,7 @@ export interface CollectionSelectModalProps {
   chainId: number
 }
 
-export const CollectionSelectModalVar = makeVar(true)
+export const CollectionSelectModalVar = makeVar(false)
 
 export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
   const CollectionSelectModal = useReactiveVar(CollectionSelectModalVar)
@@ -104,7 +104,7 @@ export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
                     onClick={() => handleSelect(item)}
                   >
                     <CollectionButtonContainer>
-                      <TokenImage
+                      <CollectionImage
                         src={item?.image}
                         diameter={24}
                         address={item?.id}
@@ -127,7 +127,7 @@ export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
             if (selectedCollection?.id === item?.id) {
               return (
                 <CollectionListContainer key={item.id} onClick={() => handleSelect(item)}>
-                  <TokenImage
+                  <CollectionImage
                     src={item?.image}
                     diameter={32}
                     address={item?.id}
@@ -142,7 +142,7 @@ export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
             } else {
               return (
                 <CollectionListContainer key={item.id} onClick={() => handleSelect(item)}>
-                  <TokenImage
+                  <CollectionImage
                     src={item?.image}
                     diameter={32}
                     address={item?.id}
@@ -159,7 +159,6 @@ export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
             }
           })}
         {loading && <Spin indicator={antIcon} />}
-        <br />
         {hasMore && !loading && (
           <div>
             <LoadMoreContent>
