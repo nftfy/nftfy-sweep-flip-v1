@@ -28,7 +28,7 @@ export const useCollections = (chainId: number) => {
     }
 
     let query: Query = {
-      limit: 20,
+      limit: 10,
       sortBy: '7DayVolume',
     }
 
