@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Button, Card, Col, Checkbox, Form, Input, Image, Row } from 'antd'
 import styled from 'styled-components'
-
-interface FormCard {}
+import { ArrowDownOutlined } from '@ant-design/icons'
+import { FaAngleDown } from 'react-icons/fa'
+import { useAccount } from 'wagmi';
 
 const CheckboxGroup = Checkbox.Group;
 
-const FormCard = ({}: FormCard) => {
+const FormCard = () => {
   const [form] = Form.useForm()
+  const account = useAccount()
   const [profit, setProfit] = useState<number>(40)
   const plainOptions = ['Skip pending', 'Skip suspisious'];
 
@@ -42,11 +44,22 @@ const FormCard = ({}: FormCard) => {
               </Box>
             </FormItem>
 
-            <FormItem label="Receive">
+            <FormItem label={
+              <Space>
+                <span>Receive</span>
+                <Button size="large" icon={<ArrowDownOutlined />} />
+              </Space>
+            }>
               <Box>
-                <Content></Content>
+                <Content>{/* select */}</Content>
                 <Left><InputWithouBorder placeholder="0" bordered={false} /></Left>
-                <Right></Right>
+                <Right>
+                  <Button type="primary" size="large">
+                    <Space>
+                      <div>Select collection</div> <FaAngleDown />
+                    </Space>
+                  </Button>
+                </Right>
               </Box>
             </FormItem>
 
@@ -58,10 +71,10 @@ const FormCard = ({}: FormCard) => {
               />
             </FormItem>
             <FormItem>
-              <Div>
+              <Space>
                 <CheckGroup options={plainOptions} />
-              </Div>
-              <Button type="primary" block>{`Sweep & Flip`}</Button>
+              </Space>
+              <Button type="primary" block disabled={!account.isConnected}>{`Sweep & Flip`}</Button>
             </FormItem>
           </Form>
         </Col>
@@ -70,11 +83,12 @@ const FormCard = ({}: FormCard) => {
   )
 }
 
-const { Box, Content, CheckGroup, Div, Left, Right, FormItem, InputWithouBorder } = {
-  Div: styled.div`
+const { Box, Content, CheckGroup, Space, Left, Right, FormItem, InputWithouBorder } = {
+  Space: styled.div`
     display: flex;
     flex-direction: row;
-    justify-items: center;
+    justify-items: baseline;
+    align-items: center;
     justify-content: space-around;
   `,
   Box: styled.div`
