@@ -8,7 +8,7 @@ interface ContentProps {
 
 const Content = ({ children }: ContentProps) => (
   <Row>
-    <Col lg={12} span={24} style={{ margin: '0 auto', height: '100%' }}>
+    <Col lg={8} span={20} style={{ margin: '0 auto', height: '100%' }}>
       {children}
     </Col>
   </Row>
