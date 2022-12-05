@@ -1,24 +1,74 @@
 import { Button, Card, Col, Image, Modal, Row, Slider, Typography } from 'antd'
-import { useState } from 'react'
+import { Tokens, useTokens } from 'src/hooks/useTokens'
+import { useEffect, useState } from 'react'
 import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi'
 import styled from 'styled-components'
+import useCoinConversion from 'src/hooks/useCoinConversion'
+import { formatDollar } from 'lib/numbers'
+import { ReservoirCollection } from '../types/ReservoirCollection'
 
 const { Title, Text } = Typography
 const { Meta } = Card
 
-export function SweepModal() {
+type SweepTokens = {
+  nftId: number
+  nftImage: string
+  nftPrice: string
+}
+
+interface SweepModalProps {
+  chainId: number
+  collection: ReservoirCollection
+}
+
+export function SweepModal({ chainId, collection }: SweepModalProps) {
+  const { tokens, fetchTokens } = useTokens(chainId)
+  const usdConversion = useCoinConversion('usd', 'ETH')
+
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [sliderValue, setSliderValue] = useState(0)
+  const [sweepAmount, setSweepAmount] = useState<number>(1)
+  const [sweepTokens, setSweepTokens] = useState<Tokens>([])
+  const [maxInput, setMaxInput] = useState<number>(1)
+  const [sweepTotal, setSweepTotal] = useState<number | undefined>(0)
+
+  useEffect(() => {
+    fetchTokens(collection.id)
+  }, [])
+
+  useEffect(() => {
+    const availableTokens = tokens?.filter(
+      token =>
+        token !== undefined &&
+        token?.token !== undefined &&
+        token?.market?.floorAsk?.price?.amount?.native !== undefined &&
+        token?.market?.floorAsk?.price?.amount?.native !== null &&
+        token?.market?.floorAsk?.price?.currency?.symbol === 'ETH'
+    )
+    setMaxInput(availableTokens?.length || 1)
+
+    const sweepTokens = availableTokens?.slice(0, sweepAmount)
+
+    setSweepTokens(sweepTokens)
+
+    const total = sweepTokens?.reduce((total, token) => {
+      if (token?.market?.floorAsk?.price?.amount?.native) {
+        total += token.market.floorAsk.price.amount.native
+      }
+      return total
+    }, 0)
+
+    setSweepTotal(total)
+  }, [sweepAmount, tokens])
 
   const handleAddOneSlider = () => {
-    if (sliderValue < 20) {
-      setSliderValue(state => state + 1)
+    if (sweepAmount < maxInput) {
+      setSweepAmount(state => state + 1)
     }
   }
 
   const handleRemoveOneSlider = () => {
-    if (sliderValue > 1) {
-      setSliderValue(state => state - 1)
+    if (sweepAmount > 1) {
+      setSweepAmount(state => state - 1)
     }
   }
 
@@ -41,8 +91,8 @@ export function SweepModal() {
         width={700}
         title={
           <HeaderContainer>
-            <Image width='48px' style={{ borderRadius: '999px' }} src='https://github.com/JoaoMarcelo-J.png' />
-            <Title level={4}>Azuki</Title>
+            <Image width='48px' style={{ borderRadius: '999px' }} src={collection.image} />
+            <Title level={4}>{collection.name}</Title>
           </HeaderContainer>
         }
         footer={
@@ -63,200 +113,30 @@ export function SweepModal() {
             <Col span={20}>
               <SliderContainer>
                 <MinusIcon style={{ cursor: 'pointer', color: 'var(--primary-color)', width: '1rem' }} onClick={handleRemoveOneSlider} />
-                <Slider style={{ width: '100%' }} min={1} max={20} onChange={setSliderValue} value={sliderValue} />
+                <Slider onChange={setSweepAmount} value={sweepAmount} style={{ width: '100%' }} min={1} max={maxInput} />
                 <PlusIcon onClick={handleAddOneSlider} />
               </SliderContainer>
             </Col>
             <Col span={3}>
               <CardContainer>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  14 <Text type='secondary'>Items</Text>
+                  {sweepTokens?.length} <Text type='secondary'>Items</Text>
                 </div>
               </CardContainer>
             </Col>
           </Row>
           <Row justify={{ ['xs']: 'center', ['lg']: 'start' }} style={{ marginTop: '2.375rem', gap: '1.1rem', width: '100%' }}>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
-            <CardNftContainer
-              hoverable
-              bordered={false}
-              style={{ width: 94, padding: 0 }}
-              cover={
-                <Image
-                  preview={false}
-                  style={{ borderRadius: '16px', height: '100px' }}
-                  alt='example'
-                  src='https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png'
-                />
-              }
-            >
-              <Meta title='11.376' style={{ padding: 0 }} />
-            </CardNftContainer>
+            {sweepTokens?.map(nft => (
+              <CardNftContainer
+                key={nft.token?.tokenId}
+                hoverable
+                bordered={false}
+                style={{ width: 94, padding: 0 }}
+                cover={<Image preview={false} style={{ borderRadius: '16px', height: '100px' }} src={nft.token?.image} />}
+              >
+                <Meta title={nft.market?.floorAsk?.price?.amount?.native} style={{ padding: 0 }} />
+              </CardNftContainer>
+            ))}
           </Row>
           <Row style={{ marginTop: '1.6rem ' }}>
             <Col style={{ marginTop: '1.6rem ', paddingLeft: '1rem' }} span={21}>
@@ -264,8 +144,8 @@ export function SweepModal() {
             </Col>
             <Col span={3} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <strong style={{ fontSize: '1rem' }}>240.05</strong>
-                <Text>$380,936.16</Text>
+                <strong style={{ fontSize: '1rem' }}>{sweepTotal}</strong>
+                {usdConversion && sweepTotal && <Text>{formatDollar(usdConversion * sweepTotal)}</Text>}
               </div>
             </Col>
           </Row>

@@ -7,9 +7,9 @@ import { SweepModal } from '@components/SweepModal'
 type Props = InferGetStaticPropsType<typeof getServerSideProps>
 
 const Home: NextPage<Props> = ({ chainId }) => (
+
   <Layout chainId={chainId}>
     {/* sweep and flip component here!!  */}
-    <SweepModal/>
   </Layout>
 )
 
