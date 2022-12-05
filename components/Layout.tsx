@@ -46,7 +46,9 @@ const Layout: FC<LayoutProps> = ({ chainId, children }) => {
         <Navbar />
         <Divider />
         <Body>
-          <Main>{children}</Main>
+          <Main>
+            {children}
+          </Main>
         </Body>
         <Footer />
       </LayoutAntd>
