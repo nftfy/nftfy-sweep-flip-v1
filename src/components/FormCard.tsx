@@ -19,7 +19,6 @@ const FormCard = () => {
       title={`Sweep & Flip`}
       style={{ width: '100%' }}
       type='inner'
-      // extra={}
     >
       <Row gutter={[23, 0]}>
         <Col span={24}>
@@ -43,25 +42,22 @@ const FormCard = () => {
                 </Right>
               </Box>
             </FormItem>
-
-            <FormItem label={
-              <Space>
-                <span>Receive</span>
-                <Button size="large" icon={<ArrowDownOutlined />} />
-              </Space>
-            }>
-              <Box>
-                <Content>{/* select */}</Content>
-                <Left><InputWithouBorder placeholder="0" bordered={false} /></Left>
-                <Right>
-                  <Button type="primary" size="large">
-                    <Space>
-                      <div>Select collection</div> <FaAngleDown />
-                    </Space>
-                  </Button>
-                </Right>
-              </Box>
-            </FormItem>
+            <Space><Button size="large" icon={<ArrowDownOutlined />} /></Space>
+            <Top>
+              <FormItem label="Receive">
+                <Box>
+                  <Content>{/* select */}</Content>
+                  <Left><InputWithouBorder placeholder="0" bordered={false} /></Left>
+                  <Right>
+                    <Button type="primary" size="large">
+                      <Space>
+                        <div>Select collection</div> <FaAngleDown />
+                      </Space>
+                    </Button>
+                  </Right>
+                </Box>
+              </FormItem>
+            </Top>
 
             <FormItem label="Set target profit">
               <Input
@@ -83,7 +79,7 @@ const FormCard = () => {
   )
 }
 
-const { Box, Content, CheckGroup, Space, Left, Right, FormItem, InputWithouBorder } = {
+const { Box, Content, CheckGroup, Top, Space, Left, Right, FormItem, InputWithouBorder } = {
   Space: styled.div`
     display: flex;
     flex-direction: row;
@@ -101,6 +97,9 @@ const { Box, Content, CheckGroup, Space, Left, Right, FormItem, InputWithouBorde
     gap: 4px;
     grid-template-areas: "left right"
                          "content content";
+  `,
+  Top: styled.div`
+    margin-top: -36px;
   `,
   FormItem: styled(Form.Item)`
     label {
