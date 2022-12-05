@@ -91,7 +91,7 @@ export function SweepModal({ chainId, collection }: SweepModalProps) {
         width={700}
         title={
           <HeaderContainer>
-            <Image width='48px' style={{ borderRadius: '999px' }} src={collection.image} />
+            <Image preview={false} width='48px' style={{ borderRadius: '999px' }} src={collection.image} />
             <Title level={4}>{collection.name}</Title>
           </HeaderContainer>
         }
@@ -134,7 +134,15 @@ export function SweepModal({ chainId, collection }: SweepModalProps) {
                 style={{ width: 94, padding: 0 }}
                 cover={<Image preview={false} style={{ borderRadius: '16px', height: '100px' }} src={nft.token?.image} />}
               >
-                <Meta title={nft.market?.floorAsk?.price?.amount?.native} style={{ padding: 0 }} />
+                <Meta
+                  style={{ padding: 0 }}
+                  title={
+                    <ImgTextContainer>
+                      <Image style={{ marginTop: '-2px' }} src='/icons/eth.svg' preview={false} />
+                      <Text>{nft.market?.floorAsk?.price?.amount?.native}</Text>
+                    </ImgTextContainer>
+                  }
+                />
               </CardNftContainer>
             ))}
           </Row>
@@ -155,7 +163,7 @@ export function SweepModal({ chainId, collection }: SweepModalProps) {
   )
 }
 
-const { HeaderContainer, FooterContainer, SliderContainer, PlusIcon, MinusIcon, CardContainer, CardNftContainer } = {
+const { HeaderContainer, FooterContainer, SliderContainer, PlusIcon, MinusIcon, CardContainer, CardNftContainer, ImgTextContainer } = {
   HeaderContainer: styled.div`
     display: flex;
     align-items: center;
@@ -209,5 +217,11 @@ const { HeaderContainer, FooterContainer, SliderContainer, PlusIcon, MinusIcon, 
       display: flex;
       justify-content: center;
     }
+  `,
+  ImgTextContainer: styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   `
 }

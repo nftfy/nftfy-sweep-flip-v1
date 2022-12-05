@@ -2,7 +2,6 @@ import { GetServerSideProps } from 'next'
 import Layout from 'components/Layout'
 import type { InferGetStaticPropsType, NextPage } from 'next'
 import { networkIdByName } from '../../../lib/networkService'
-import { SweepModal } from '@components/SweepModal'
 
 type Props = InferGetStaticPropsType<typeof getServerSideProps>
 
