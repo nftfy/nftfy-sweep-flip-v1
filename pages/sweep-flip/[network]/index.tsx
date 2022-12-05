@@ -10,7 +10,7 @@ type Props = InferGetStaticPropsType<typeof getServerSideProps>
 const Home: NextPage<Props> = ({ chainId }) => (
   <Layout chainId={chainId}>
     <Content>
-      <FormCard />
+      <FormCard chainId={chainId} />
     </Content>
   </Layout>
 )

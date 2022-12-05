@@ -4,78 +4,89 @@ import styled from 'styled-components'
 import { ArrowDownOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount } from 'wagmi';
+import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
+import { useReactiveVar } from '@apollo/client'
 
 const CheckboxGroup = Checkbox.Group;
 
-const FormCard = () => {
+interface FormCardProps {
+  chainId: number
+}
+
+const FormCard = ({ chainId }: FormCardProps) => {
   const [form] = Form.useForm()
+  const modalCollection = useReactiveVar(CollectionSelectModalVar)
   const account = useAccount()
   const [profit, setProfit] = useState<number>(40)
   const plainOptions = ['Skip pending', 'Skip suspisious'];
 
 
   return (
-    <Card
-      title={`Sweep & Flip`}
-      style={{ width: '100%' }}
-      type='inner'
-    >
-      <Row gutter={[23, 0]}>
-        <Col span={24}>
-          <Form layout="vertical" form={form} size='large'>
-            <FormItem label="Pay">
-              <Box>
-                <Content></Content>
-                <Left><InputWithouBorder placeholder="0" bordered={false} /></Left>
-                <Right>
-                  <Button icon={
-                    <Image
-                      src="/icons/eth.svg"
-                      preview={false}
-                      width={24}
-                      height={24}
-                      style={{ paddingRight: 2, paddingBottom: 2 }}
-                    />
-                  } size="large">
-                    ETH
-                  </Button>
-                </Right>
-              </Box>
-            </FormItem>
-            <Space><Button size="large" icon={<ArrowDownOutlined />} /></Space>
-            <Top>
-              <FormItem label="Receive">
+    <>
+      <Card
+        title={`Sweep & Flip`}
+        style={{ width: '100%' }}
+        type='inner'
+      >
+        <Row gutter={[23, 0]}>
+          <Col span={24}>
+            <Form layout="vertical" form={form} size='large'>
+              <FormItem label="Pay">
                 <Box>
-                  <Content>{/* select */}</Content>
+                  <Content></Content>
                   <Left><InputWithouBorder placeholder="0" bordered={false} /></Left>
                   <Right>
-                    <Button type="primary" size="large">
-                      <Space>
-                        <div>Select collection</div> <FaAngleDown />
-                      </Space>
+                    <Button icon={
+                      <Image
+                        src="/icons/eth.svg"
+                        preview={false}
+                        width={24}
+                        height={24}
+                        style={{ paddingRight: 2, paddingBottom: 2 }}
+                      />
+                    } size="large">
+                      ETH
                     </Button>
                   </Right>
                 </Box>
               </FormItem>
-            </Top>
+              <Space><Button size="large" icon={<ArrowDownOutlined />} /></Space>
+              <Top>
+                <FormItem label="Receive">
+                  <Box>
+                    <Content>{/* select */}</Content>
+                    <Left><InputWithouBorder placeholder="0" bordered={false} /></Left>
+                    <Right>
+                      <Button type="primary" size="large" onClick={() => CollectionSelectModalVar(true)}>
+                        <Space>
+                          <div>Select collection</div> <FaAngleDown />
+                        </Space>
+                      </Button>
+                    </Right>
+                  </Box>
+                </FormItem>
+              </Top>
 
-            <FormItem label="Set target profit">
-              <Input
-                placeholder='0%'
-                style={{ textAlign: 'center' }}
-                onChange={(text) => setProfit(Number(text.target.value.trim() || 0))}
-              />
-            </FormItem>
-            <FormItem>
-              <Space>
-                <CheckGroup options={plainOptions} />
-              </Space>
-              <Button type="primary" block disabled={!account.isConnected}>{`Sweep & Flip`}</Button>
-            </FormItem>
-          </Form>
-        </Col>
-      </Row>
-    </Card>
+              <FormItem label="Set target profit">
+                <Input
+                  placeholder='0%'
+                  style={{ textAlign: 'center' }}
+                  onChange={(text) => setProfit(Number(text.target.value.trim() || 0))}
+                />
+              </FormItem>
+              <FormItem>
+                <Space>
+                  <CheckGroup options={plainOptions} />
+                </Space>
+                <Button type="primary" block disabled={!account.isConnected}>{`Sweep & Flip`}</Button>
+              </FormItem>
+            </Form>
+          </Col>
+        </Row>
+      </Card>
+
+      {modalCollection && <CollectionSelectModal chainId={chainId} />}
+    </>
   )
 }
 
