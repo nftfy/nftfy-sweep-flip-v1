@@ -6,7 +6,6 @@ import { networkIdByName } from '../../../lib/networkService'
 type Props = InferGetStaticPropsType<typeof getServerSideProps>
 
 const Home: NextPage<Props> = ({ chainId }) => (
-
   <Layout chainId={chainId}>
     {/* sweep and flip component here!!  */}
   </Layout>

@@ -45,7 +45,6 @@ export const useTokens = (chainId: number) => {
   return {fetchTokens , tokens, loading}
 
 }
-
 function setParams(url: string | URL, query: { [x: string]: any }) {
   if (typeof url === 'string') {
     const searchParams = new URLSearchParams(query)
