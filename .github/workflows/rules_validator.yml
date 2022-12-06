@@ -1,0 +1,63 @@
+name: Rules Validator
+
+on:
+  push:
+    branches:
+      - '**'
+jobs:
+  rules_validator:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Check Branch
+        run: echo ${GITHUB_REF#refs/heads/}
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo NEXT_PUBLIC_CHAIN_ID=${{ secrets.NEXT_PUBLIC_CHAIN_ID }} >> .env
+          echo NEXT_PUBLIC_RESERVOIR_API_BASE=${{ secretsNEXT_PUBLIC_RESERVOIR_API_BASE }} >> .env
+          echo NEXT_PUBLIC_PROXY_API_BASE=${{ secrets.NEXT_PUBLIC_PROXY_API_BASE }} >> .env
+          echo NEXT_PUBLIC_NFTFY_API_BASE=${{ secrets.NEXT_PUBLIC_NFTFY_API_BASE }} >> .env
+          echo NEXT_PUBLIC_PRIMARY_COLOR=${{ secrets.NEXT_PUBLIC_PRIMARY_COLOR }} >> .env
+          echo NEXT_PUBLIC_DISABLE_POWERED_BY_RESERVOIR=${{ secrets.NEXT_PUBLIC_DISABLE_POWERED_BY_RESERVOIR }} >> .env
+          echo NEXT_PUBLIC_NAVBAR_LOGO=${{ secrets.NEXT_PUBLIC_NAVBAR_LOGO }} >> .env
+          echo NEXT_PUBLIC_SOURCE_ICON=${{ secrets.NEXT_PUBLIC_SOURCE_ICON }} >> .env
+          echo NEXT_PUBLIC_DESKTOP_NAVBAR_LOGO=${{ secrets.NEXT_PUBLIC_DESKTOP_NAVBAR_LOGO }} >> .env
+          echo NEXT_PUBLIC_SOURCE_NAME=${{ secrets.NEXT_PUBLIC_SOURCE_NAME }} >> .env
+          echo NEXT_PUBLIC_ALCHEMY_ID=${{ secrets.NEXT_PUBLIC_ALCHEMY_ID }} >> .env
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Check Language Rules
+        run: yarn cspell
+
+      - name: Check text Formatting
+        run: yarn prettier
+
+      - name: Check Lint Rules
+        run: yarn lint
+
+      - name: Perform Tests
+        run: yarn test
+
+      - name: Perform Build
+        run: yarn build

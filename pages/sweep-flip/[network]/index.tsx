@@ -2,12 +2,16 @@ import { GetServerSideProps } from 'next'
 import Layout from 'components/Layout'
 import type { InferGetStaticPropsType, NextPage } from 'next'
 import { networkIdByName } from '../../../lib/networkService'
+import FormCard from '@components/FormCard'
+import Content from '@components/Content'
 
 type Props = InferGetStaticPropsType<typeof getServerSideProps>
 
 const Home: NextPage<Props> = ({ chainId }) => (
   <Layout chainId={chainId}>
-    {/* sweep and flip component here!!  */}
+    <Content>
+      <FormCard chainId={chainId} />
+    </Content>
   </Layout>
 )
 
