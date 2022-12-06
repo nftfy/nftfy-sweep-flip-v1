@@ -18,6 +18,7 @@ export interface CollectionSelectModalProps {
 export const CollectionSelectModalVar = makeVar(false)
 
 export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
+  console.log("Chain Id", chainId)
   const CollectionSelectModal = useReactiveVar(CollectionSelectModalVar)
   const [mounted, setMounted] = useState<boolean>(false)
 

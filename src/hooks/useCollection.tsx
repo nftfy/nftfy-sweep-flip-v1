@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 const RESERVOIR_API_KEY = process.env.NEXT_PUBLIC_RESERVOIR_API_KEY
 const BASE_API_URL = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
-const COLLECTIONS_API_PATH = 'collections/v5'
+const COLLECTIONS_API_PATH = '/collections/v5'
 
 type Schema = paths['/collections/v5']['get']['responses']['200']['schema']
 type Collections = paths['/collections/v5']['get']['responses']['200']['schema']['collections']
