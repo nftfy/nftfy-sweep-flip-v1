@@ -38,7 +38,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   <Right>
                     <Button icon={
                       <Image
-                        src="/icons/eth.svg"
+                        src="/icons/eth-balance.svg"
                         preview={false}
                         width={24}
                         height={24}
