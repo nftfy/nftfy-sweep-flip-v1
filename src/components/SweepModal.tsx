@@ -10,12 +10,6 @@ import { ReservoirCollection } from '../types/ReservoirCollection'
 const { Title, Text } = Typography
 const { Meta } = Card
 
-type SweepTokens = {
-  nftId: number
-  nftImage: string
-  nftPrice: string
-}
-
 interface SweepModalProps {
   chainId: number
   collection: ReservoirCollection
@@ -152,7 +146,7 @@ export function SweepModal({ chainId, collection }: SweepModalProps) {
             </Col>
             <Col span={3} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <strong style={{ fontSize: '1rem' }}>{sweepTotal}</strong>
+                <strong style={{ fontSize: '1rem' }}>{sweepTotal?.toFixed(3)}</strong>
                 {usdConversion && sweepTotal && <Text>{formatDollar(usdConversion * sweepTotal)}</Text>}
               </div>
             </Col>
