@@ -22,8 +22,6 @@ const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const MyDocument = function () {
   const chain = findChain(CHAIN_ID)
 
-  
-
   return (
     <Html className={DARK_MODE ? 'dark' : ''}>
       <Head />

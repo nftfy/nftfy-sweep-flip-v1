@@ -1,25 +1,81 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Card, Col, Checkbox, Form, Input, Image, Row } from 'antd'
 import styled from 'styled-components'
+import { CollectionImage } from '@components/shared/CollectionImage'
 import { ArrowDownOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount } from 'wagmi';
 import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
 import { useReactiveVar } from '@apollo/client'
+import { Tokens, useTokens } from 'src/hooks/useTokens'
+import { ReservoirCollection } from '../types/ReservoirCollection'
+import SliderTokens from './shared/SliderTokens'
 
-const CheckboxGroup = Checkbox.Group;
+const CheckboxGroup = Checkbox.Group
+const MAX_ITEM_PER_COLLECTION = 20
 
 interface FormCardProps {
   chainId: number
 }
 
 const FormCard = ({ chainId }: FormCardProps) => {
-  const [form] = Form.useForm()
-  const modalCollection = useReactiveVar(CollectionSelectModalVar)
   const account = useAccount()
+  const modalCollection = useReactiveVar(CollectionSelectModalVar)
+  const { tokens, fetchTokens } = useTokens(chainId)
+  const [form] = Form.useForm()
   const [profit, setProfit] = useState<number>(40)
+  const [collectionData, setCollectionData] = useState<ReservoirCollection | undefined>(undefined)
+  const [sweepAmount, setSweepAmount] = useState<number>(1)
+  const [sweepTokens, setSweepTokens] = useState<Tokens>([])
+  const [maxInput, setMaxInput] = useState<number>(1)
+  const [sweepTotal, setSweepTotal] = useState<number | undefined>(0)
+
   const plainOptions = ['Skip pending', 'Skip suspisious'];
 
+  const handleSelectCollection = (data: ReservoirCollection | undefined) => setCollectionData(data)
+
+  useEffect(() => {
+    if (account.isDisconnected || !collectionData) return
+
+    fetchTokens(collectionData.id)
+  }, [collectionData])
+
+  useEffect(() => {
+    const availableTokens = tokens?.filter(
+      token =>
+        token !== undefined &&
+        token?.token !== undefined &&
+        token?.market?.floorAsk?.price?.amount?.native !== undefined &&
+        token?.market?.floorAsk?.price?.amount?.native !== null &&
+        token?.market?.floorAsk?.price?.currency?.symbol === 'ETH'
+    )
+    setMaxInput(availableTokens?.length || 1)
+
+    const sweepTokens = availableTokens?.slice(0, sweepAmount)
+
+    setSweepTokens(sweepTokens)
+
+    const total = sweepTokens?.reduce((total, token) => {
+      if (token?.market?.floorAsk?.price?.amount?.native) {
+        total += token.market.floorAsk.price.amount.native
+      }
+      return total
+    }, 0)
+
+    setSweepTotal(total)
+  }, [sweepAmount, tokens])
+
+  const handleAddOneSlider = () => {
+    if (sweepAmount < maxInput) {
+      setSweepAmount(state => state + 1)
+    }
+  }
+
+  const handleRemoveOneSlider = () => {
+    if (sweepAmount > 1) {
+      setSweepAmount(state => state - 1)
+    }
+  }
 
   return (
     <>
@@ -54,14 +110,47 @@ const FormCard = ({ chainId }: FormCardProps) => {
               <Top>
                 <FormItem label="Receive">
                   <Box>
-                    <Content>{/* select */}</Content>
-                    <Left><InputWithouBorder placeholder="0" bordered={false} /></Left>
+                    <Content>
+                      {
+                        collectionData && (
+                          <Space>
+                            <SliderTokens
+                              amount={0}
+                              maxAmount={MAX_ITEM_PER_COLLECTION}
+                              onPlus={handleAddOneSlider}
+                              onMinus={handleRemoveOneSlider}
+                              onChangeAmount={setSweepAmount}
+                            />
+                          </Space>
+                        )
+                      }
+                    </Content>
+                    <Left><InputWithouBorder placeholder="0" bordered={false} value={sweepAmount} /></Left>
                     <Right>
-                      <Button type="primary" size="large" onClick={() => CollectionSelectModalVar(true)}>
-                        <Space>
-                          <div>Select collection</div> <FaAngleDown />
-                        </Space>
-                      </Button>
+                      {collectionData ?
+                        (
+                          <Button size="large" onClick={() => CollectionSelectModalVar(true)}>
+                            <Space>
+                              <CollectionImage
+                                src={collectionData?.image}
+                                diameter={24}
+                                address={collectionData?.id}
+                                loading={false}
+                                borderSize='1px'
+                                borderColor='var(--gray-7)'
+                              />&nbsp;
+                              <div>{String(collectionData?.name).length > 10 ? `${collectionData?.name?.slice(0, 10)}...` : collectionData?.name}</div>
+                              <FaAngleDown />
+                            </Space>
+                          </Button>
+                        )
+                        : (
+                          <Button type="primary" size="large" onClick={() => CollectionSelectModalVar(true)}>
+                            <Space>
+                              <div>Select collection</div> <FaAngleDown />
+                            </Space>
+                          </Button>
+                        )}
                     </Right>
                   </Box>
                 </FormItem>
@@ -85,7 +174,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
         </Row>
       </Card>
 
-      {modalCollection && <CollectionSelectModal chainId={chainId} />}
+      {modalCollection && <CollectionSelectModal chainId={chainId} onSelect={handleSelectCollection} />}
     </>
   )
 }
