@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 const RESERVOIR_API_KEY = process.env.NEXT_PUBLIC_RESERVOIR_API_KEY
 const BASE_API_URL = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
-const TOKENS_API_PATH = 'tokens/v5'
+const TOKENS_API_PATH = '/tokens/v5'
 
 type Schema = paths['/tokens/v5']['get']['responses']['200']['schema']
 export type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
