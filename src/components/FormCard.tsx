@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Card, Col, Checkbox, Form, Input, Image, Row } from 'antd'
+import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography } from 'antd'
 import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
 import { ArrowDownOutlined } from '@ant-design/icons'
@@ -10,9 +10,12 @@ import { useReactiveVar } from '@apollo/client'
 import { Tokens, useTokens } from 'src/hooks/useTokens'
 import { ReservoirCollection } from '../types/ReservoirCollection'
 import SliderTokens from './shared/SliderTokens'
+import { SweepModal, SweepModalVar } from './SweepModal'
+import Link from 'antd/lib/typography/Link'
 
 const CheckboxGroup = Checkbox.Group
-const MAX_ITEM_PER_COLLECTION = 20
+
+const { Text } = Typography
 
 interface FormCardProps {
   chainId: number
@@ -21,6 +24,7 @@ interface FormCardProps {
 const FormCard = ({ chainId }: FormCardProps) => {
   const account = useAccount()
   const modalCollection = useReactiveVar(CollectionSelectModalVar)
+  const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
   const [form] = Form.useForm()
   const [profit, setProfit] = useState<number>(40)
@@ -49,6 +53,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
         token?.market?.floorAsk?.price?.amount?.native !== null &&
         token?.market?.floorAsk?.price?.currency?.symbol === 'ETH'
     )
+    console.log(availableTokens)
     setMaxInput(availableTokens?.length || 1)
 
     const sweepTokens = availableTokens?.slice(0, sweepAmount)
@@ -63,7 +68,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     }, 0)
 
     setSweepTotal(total)
-  }, [sweepAmount, tokens])
+  }, [sweepAmount, tokens, maxInput])
 
   const handleAddOneSlider = () => {
     if (sweepAmount < maxInput) {
@@ -113,17 +118,19 @@ const FormCard = ({ chainId }: FormCardProps) => {
                     <Content>
                       {
                         collectionData && (
-                          <Space>
+                          <Col style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            {maxInput >= 1 && <Link onClick={() => SweepModalVar(true) }>See NFT</Link> }
                             <SliderTokens
-                              amount={0}
-                              maxAmount={MAX_ITEM_PER_COLLECTION}
+                              amount={sweepAmount}
+                              maxAmount={maxInput}
                               onPlus={handleAddOneSlider}
                               onMinus={handleRemoveOneSlider}
                               onChangeAmount={setSweepAmount}
                             />
-                          </Space>
+                          </Col>
                         )
                       }
+                      <>{maxInput === 0 && <Text type="danger" style={{ fontSize: 11 }}>No NFT availables</Text>}</>
                     </Content>
                     <Left><InputWithouBorder placeholder="0" bordered={false} value={sweepAmount} /></Left>
                     <Right>
@@ -175,6 +182,15 @@ const FormCard = ({ chainId }: FormCardProps) => {
       </Card>
 
       {modalCollection && <CollectionSelectModal chainId={chainId} onSelect={handleSelectCollection} />}
+      {sweepModal && <SweepModal { ...{
+        sweepAmount,
+        maxInput,
+        collection: collectionData,
+        tokens,
+        onPlus: handleAddOneSlider,
+        onMinus: handleRemoveOneSlider,
+        onChangeAmount: setSweepAmount
+      }} />}
     </>
   )
 }
