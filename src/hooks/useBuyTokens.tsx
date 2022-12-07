@@ -1,54 +1,60 @@
-import { NetworksId } from '@appTypes/config/Network'
-import { paths } from '@reservoir0x/reservoir-kit-client'
+import { Execute, paths } from '@reservoir0x/reservoir-kit-client'
+import { useReservoirClient, } from '@reservoir0x/reservoir-kit-ui'
+// import { Signer } from 'ethers'
 import { useState } from 'react'
+import { useSigner } from 'wagmi'
 
-const RESERVOIR_API_KEY = process.env.NEXT_PUBLIC_RESERVOIR_API_KEY
-const BASE_API_URL = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
-const BUY_TOKENS_API_PATH = '/execute/buy/v6'
-
-// type BodyParams = paths['/execute/buy/v6']['post']['parameters']['body']['body']
-type Response = paths['/execute/buy/v6']['post']['responses']['200']['schema']
+type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
 export const useBuyTokens = (chainId: number) => {
+  const reservoirClient = useReservoirClient()
+  const { data: signer } = useSigner()
   const [loading, setLoading] = useState<boolean>(false)
   const [errors, setErrors] = useState<any | undefined>(undefined)
+  const [steps, setSteps] = useState<Execute['steps'] | undefined>(undefined)
 
-  async function requestBuyTokens (account: string, tokens: any[]) {
-    setLoading(true)
-    setErrors(undefined)
-
-    if(tokens.length < 1 || !account) {
-      setLoading(false)
-      return
-    }
-
-    const options: RequestInit | undefined = {}
-
-    options.method = 'POST'
-
-    options.headers = {
-      accept: '*/*',
-      'content-type': 'application/json',
-      'x-api-key': chainId === NetworksId.ethereum && RESERVOIR_API_KEY ? RESERVOIR_API_KEY : 'demo-api-key',
-    }
-    
-    options.body = JSON.stringify({
-      tokens: tokens,
-      onlyPath: false,
-      currency: '0x0000000000000000000000000000000000000000',
-      partial: false,
-      skipErrors: false,
-      skipBalanceCheck: false,
-      taker: account
-    })
-
+  async function execute (tokens: Tokens, sweepTotal: string) {
     try {
-      const url = new URL(BASE_API_URL + BUY_TOKENS_API_PATH)
+      setLoading(true)
+      setErrors(undefined)
 
-      const request = await fetch(url, options)
-      const response = request.json() as Response
+      if (!reservoirClient) {
+        setLoading(false)
+        throw 'Client is not initialized'
+      }
 
-      console.log(response) //rm
+      if (!signer) {
+        setLoading(false)
+        throw 'Missing a signer'
+      }
+
+      if (!tokens) {
+        setLoading(false)
+        throw 'Missing tokens to sweep'
+      }
+
+      let sweepTokens: any[] = []
+
+      for (let item of tokens) {
+        sweepTokens.push({
+          tokenId: item.token?.tokenId,
+          contract: item.token?.contract,
+        })
+      }
+
+      console.log(sweepTokens)
+
+      const sweep = await reservoirClient.actions.buyToken({
+        expectedPrice: Number(sweepTotal),
+        tokens: sweepTokens,
+        signer,
+        onProgress: setSteps,
+        options: {
+          partial: false,
+        }
+      })
+
+      console.log(sweep) //rm
 
       setLoading(false)
     } catch(err) {
@@ -59,9 +65,8 @@ export const useBuyTokens = (chainId: number) => {
       setLoading(false)
     }
 
-
   }
 
-  return {requestBuyTokens, errors, loading}
+  return {execute, errors, loading}
 
 }
