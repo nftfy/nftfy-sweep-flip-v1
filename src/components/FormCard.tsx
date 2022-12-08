@@ -32,7 +32,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const [sweepAmount, setSweepAmount] = useState<number>(1)
   const [sweepTokens, setSweepTokens] = useState<Tokens>([])
   const [maxInput, setMaxInput] = useState<number>(1)
-  const [sweepTotal, setSweepTotal] = useState<number | undefined>(0)
+  const [sweepTotal, setSweepTotal] = useState<number>(0)
 
   const plainOptions = ['Skip pending', 'Skip suspisious'];
 
@@ -54,7 +54,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
         token?.market?.floorAsk?.price?.currency?.symbol === 'ETH'
     )
     console.log(availableTokens)
-    setMaxInput(availableTokens?.length || 1)
+    setMaxInput(Number(availableTokens?.length))
 
     const sweepTokens = availableTokens?.slice(0, sweepAmount)
 
@@ -67,7 +67,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
       return total
     }, 0)
 
-    setSweepTotal(total)
+    setSweepTotal(Number(total))
   }, [sweepAmount, tokens, maxInput])
 
   const handleAddOneSlider = () => {
@@ -186,7 +186,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
         sweepAmount,
         maxInput,
         collection: collectionData,
-        tokens,
+        tokens: sweepTokens,
+        totalAmount: sweepTotal,
         onPlus: handleAddOneSlider,
         onMinus: handleRemoveOneSlider,
         onChangeAmount: setSweepAmount

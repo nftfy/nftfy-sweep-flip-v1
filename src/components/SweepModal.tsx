@@ -15,6 +15,7 @@ const { Meta } = Card
 interface SweepModalProps {
   sweepAmount: number
   maxInput: number
+  totalAmount: number
   collection: ReservoirCollection | undefined
   tokens: Tokens | undefined
   onPlus: () => void
@@ -24,7 +25,7 @@ interface SweepModalProps {
 
 export const SweepModalVar = makeVar(false)
 
-export function SweepModal({ sweepAmount, maxInput, collection, tokens, onPlus, onMinus, onChangeAmount }: SweepModalProps) {
+export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tokens, onPlus, onMinus, onChangeAmount }: SweepModalProps) {
   const sweepModal = useReactiveVar(SweepModalVar)
   const usdConversion = useCoinConversion('usd', 'ETH')
 
@@ -101,10 +102,10 @@ export function SweepModal({ sweepAmount, maxInput, collection, tokens, onPlus, 
             <Text style={{ color: 'var(--gray-9)' }}>Total Price</Text>
           </Col>
           <Col span={3} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            {/* <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <strong style={{ fontSize: '1rem' }}>{sweepTotal?.toFixed(3)}</strong>
-              {usdConversion && sweepTotal && <Text>{formatDollar(usdConversion * sweepTotal)}</Text>}
-            </div> */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <strong style={{ fontSize: '1rem' }}>{totalAmount?.toFixed(3)}</strong>
+              {usdConversion && totalAmount && <Text>{formatDollar(usdConversion * totalAmount)}</Text>}
+            </div>
           </Col>
         </Row>
       </>
