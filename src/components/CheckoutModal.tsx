@@ -95,12 +95,7 @@ export function CheckoutModal() {
   )
 }
 
-const { HeaderContainer, FooterContainer, TokenContainer, CardContent, CardNftContainer, ImgTextContainer } = {
-  HeaderContainer: styled.div`
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  `,
+const { FooterContainer, TokenContainer, CardContent } = {
   FooterContainer: styled.div`
     width: 100%;
     display: flex;
@@ -115,22 +110,6 @@ const { HeaderContainer, FooterContainer, TokenContainer, CardContent, CardNftCo
   CardContent: styled.div`
     display: flex;
     flex-direction: column;
-    gap: 8px;
-  `,
-  CardNftContainer: styled(Card)`
-    width: 100%;
-
-    .ant-card-body {
-      width: 100%;
-      padding: 8px !important;
-      display: flex;
-      justify-content: center;
-    }
-  `,
-  ImgTextContainer: styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 8px;
   `
 }
