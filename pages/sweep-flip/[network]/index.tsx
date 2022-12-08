@@ -4,14 +4,16 @@ import type { InferGetStaticPropsType, NextPage } from 'next'
 import { networkIdByName } from '../../../lib/networkService'
 import FormCard from '@components/FormCard'
 import Content from '@components/Content'
+import { CheckoutModal } from '@components/CheckoutModal'
 
 type Props = InferGetStaticPropsType<typeof getServerSideProps>
 
 const Home: NextPage<Props> = ({ chainId }) => (
   <Layout chainId={chainId}>
-    <Content>
+    {/* <Content>
       <FormCard chainId={chainId} />
-    </Content>
+    </Content> */}
+    <CheckoutModal/>
   </Layout>
 )
 
