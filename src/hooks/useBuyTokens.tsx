@@ -6,6 +6,17 @@ import { useSigner } from 'wagmi'
 
 type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
+const mockTokens = [
+  {
+    tokenId: '307',
+    contract: '0x46bEF163D6C470a4774f9585F3500Ae3b642e751'
+  },
+  {
+    tokenId: '305',
+    contract: '0x46bEF163D6C470a4774f9585F3500Ae3b642e751'
+  },
+]
+
 export const useBuyTokens = (chainId: number) => {
   const reservoirClient = useReservoirClient()
   const { data: signer } = useSigner()
@@ -13,7 +24,7 @@ export const useBuyTokens = (chainId: number) => {
   const [errors, setErrors] = useState<any | undefined>(undefined)
   const [steps, setSteps] = useState<Execute['steps'] | undefined>(undefined)
 
-  async function execute (tokens: Tokens, sweepTotal: string) {
+  async function execute (/*tokens: Tokens*/) {
     try {
       setLoading(true)
       setErrors(undefined)
@@ -28,25 +39,25 @@ export const useBuyTokens = (chainId: number) => {
         throw 'Missing a signer'
       }
 
-      if (!tokens) {
-        setLoading(false)
-        throw 'Missing tokens to sweep'
-      }
+      // if (!tokens) {
+      //   setLoading(false)
+      //   throw 'Missing tokens to sweep'
+      // }
 
-      let sweepTokens: any[] = []
+      // let sweepTokens: any[] = []
 
-      for (let item of tokens) {
-        sweepTokens.push({
-          tokenId: item.token?.tokenId,
-          contract: item.token?.contract,
-        })
-      }
+      // for (let item of tokens) {
+      //   sweepTokens.push({
+      //     tokenId: item.token?.tokenId,
+      //     contract: item.token?.contract,
+      //   })
+      // }
 
-      console.log(sweepTokens)
+      console.log(mockTokens, 'swepTokens') //rm
 
       const sweep = await reservoirClient.actions.buyToken({
-        expectedPrice: Number(sweepTotal),
-        tokens: sweepTokens,
+        // expectedPrice: Number(sweepTotal),
+        tokens: mockTokens,//change
         signer,
         onProgress: setSteps,
         options: {
@@ -54,7 +65,7 @@ export const useBuyTokens = (chainId: number) => {
         }
       })
 
-      console.log(sweep) //rm
+      console.log(sweep, 'sweep actions') //rm
 
       setLoading(false)
     } catch(err) {
@@ -67,6 +78,6 @@ export const useBuyTokens = (chainId: number) => {
 
   }
 
-  return {execute, errors, loading}
+  return {execute, steps, errors, loading}
 
 }

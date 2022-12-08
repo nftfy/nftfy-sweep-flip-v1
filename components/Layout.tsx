@@ -1,19 +1,33 @@
 import { FC } from 'react'
 import { Toaster } from 'react-hot-toast'
 import Head from 'next/head'
-import { Divider as AntDivider, Layout as LayoutAntd } from 'antd'
+import { Button, Divider as AntDivider, Layout as LayoutAntd } from 'antd'
 import Navbar from './Navbar'
 import styled from 'styled-components'
 import NetworkWarning from './NetworkWarning'
 import { Footer } from './Footer'
+import { createClient } from "@reservoir0x/reservoir-kit-client"
+import { useBuyTokens } from 'src/hooks/useBuyTokens'
+import { paths } from '@reservoir0x/reservoir-kit-client'
 
 const { Content } = LayoutAntd
+
+const reservoirClient = createClient({
+  apiBase: "https://api-goerli.reservoir.tools"
+});
 
 interface LayoutProps {
   chainId: number
 }
 
 const Layout: FC<LayoutProps> = ({ chainId, children }) => {
+  const { execute, steps, loading } = useBuyTokens(chainId)
+
+  const handleTest = async () => {
+    execute()
+  }
+
+  console.log(reservoirClient) //rm
   return (
     <>
       <Head>
@@ -48,6 +62,7 @@ const Layout: FC<LayoutProps> = ({ chainId, children }) => {
         <Body>
           <Main>
             {children}
+            <Button onClick={handleTest}>Teste Buy</Button>
           </Main>
         </Body>
         <Footer />
