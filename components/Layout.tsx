@@ -1,14 +1,11 @@
 import { FC } from 'react'
 import { Toaster } from 'react-hot-toast'
 import Head from 'next/head'
-import { Button, Divider as AntDivider, Layout as LayoutAntd } from 'antd'
+import { Divider as AntDivider, Layout as LayoutAntd } from 'antd'
 import Navbar from './Navbar'
 import styled from 'styled-components'
 import NetworkWarning from './NetworkWarning'
 import { Footer } from './Footer'
-import { createClient } from "@reservoir0x/reservoir-kit-client"
-import { useBuyTokens } from 'src/hooks/useBuyTokens'
-import { paths } from '@reservoir0x/reservoir-kit-client'
 
 const { Content } = LayoutAntd
 
