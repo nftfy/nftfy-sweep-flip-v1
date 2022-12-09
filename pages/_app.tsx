@@ -146,7 +146,7 @@ const App: FC<AppProps & { baseUrl: string }> = ({
   }, [defaultTheme, theme])
 
   let options: ReservoirKitProviderProps['options'] = {
-    apiKey: process.env.NEXT_PUBLIC_RESERVOIR_API_BASE || undefined,
+    apiKey: process.env.NEXT_PUBLIC_RESERVOIR_API_KEY || undefined,
     apiBase: process.env.NEXT_PUBLIC_RESERVOIR_API_BASE || "https://api-goerli.reservoir.tools",
     disablePoweredByReservoir:
       DISABLE_POWERED_BY_RESERVOIR != undefined &&
