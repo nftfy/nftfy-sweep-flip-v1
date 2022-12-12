@@ -1,10 +1,21 @@
 import { ArrowDownOutlined } from '@ant-design/icons'
+import { ReservoirCollection } from '@appTypes/ReservoirCollection'
 import { Button, Card, Col, Image, Modal, Row, Typography } from 'antd'
 import Link from 'next/link'
 import { useState } from 'react'
 import styled from 'styled-components'
 
-export function CheckoutModal() {
+interface CheckoutModalProps {
+  collection: ReservoirCollection
+  tokens: any[]
+  totalPrice: number
+  userBalanceEth: string
+  userBalanceNft: string
+  targetProfit: number
+}
+
+export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, userBalanceNft, targetProfit }: CheckoutModalProps) {
+  // const { execute, steps, errors, loading } = useBuyTokens()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { Title, Text } = Typography
 
@@ -13,12 +24,17 @@ export function CheckoutModal() {
   }
 
   const handleOk = () => {
+    // execute(tokens)
     setIsModalOpen(false)
   }
 
   const handleCancel = () => {
     setIsModalOpen(false)
   }
+
+  const expectedProfit = (targetProfit / 100) * totalPrice
+  const relisted = (totalPrice + expectedProfit) / tokens?.length
+  const fee = totalPrice * 0.025
 
   return (
     <>
@@ -50,8 +66,8 @@ export function CheckoutModal() {
                 <Text type='secondary'>
                   <strong>Collection</strong>
                 </Text>
-                <Image width={200} preview={false} style={{ borderRadius: '12px' }} src='https://github.com/joaomarcelo-J.png' />
-                <Title level={5}>BEANZ</Title>
+                <Image width={200} preview={false} style={{ borderRadius: '12px' }} src={collection?.image} />
+                <Title level={5}>{collection?.name}</Title>
                 <Text type='secondary'>NFTFY Top Collections</Text>
                 <Card style={{ width: 240 }}>
                   <CardContent>
@@ -60,7 +76,7 @@ export function CheckoutModal() {
                         <Text type='secondary'>Floor price</Text>
                       </Col>
                       <Col span={3} style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Text>1</Text>
+                        <Text>{collection?.floorAsk?.price?.amount?.native}</Text>
                       </Col>
                       <Col span={1}>
                         <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
@@ -98,17 +114,15 @@ export function CheckoutModal() {
                       <Col>
                         <div style={{ display: 'flex', gap: '5px' }}>
                           <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                          0.197 ETH
+                          {totalPrice} ETH
                         </div>
                       </Col>
                     </Row>
                     <Row>
-                      <Col span={20}>
+                      <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                         <Text style={{ fontSize: '12px' }} type='secondary'>
-                          Balance: 4.234231
+                          Balance: {userBalanceEth} ETH
                         </Text>
-                      </Col>
-                      <Col>
                         <Text style={{ fontSize: '12px' }} type='secondary'>
                           $230.94
                         </Text>
@@ -130,18 +144,16 @@ export function CheckoutModal() {
                     <Col style={{ fontWeight: 600 }}>Receive & Flip</Col>
                     <Col>
                       <div style={{ display: 'flex', gap: '5px', fontWeight: 600 }}>
-                        <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                        0.197 BEANZ
+                        <Image style={{ marginTop: '-3px', width: '16px' }} src={collection?.image} preview={false} />
+                        {tokens?.length}
                       </div>
                     </Col>
                   </Row>
                   <Row>
-                    <Col span={20} style={{ fontWeight: 600 }}>
+                    <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontWeight: 600 }}>
                       <Text style={{ fontSize: '12px' }} type='secondary'>
-                        Balance: 0 BEANZ
+                        Balance: {userBalanceNft} {collection?.name}
                       </Text>
-                    </Col>
-                    <Col style={{ fontWeight: 600 }}>
                       <Text style={{ fontSize: '12px' }} type='secondary'>
                         $237.04
                       </Text>
@@ -150,7 +162,14 @@ export function CheckoutModal() {
                   <Row>
                     <Col span={24}>
                       <Link href=''>
-                        <Text style={{ display: 'flex', justifyContent: 'center', marginTop: '0px', color: 'var(--primary-color)' }}>
+                        <Text
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            marginTop: '0px',
+                            color: 'var(--primary-color)'
+                          }}
+                        >
                           See NFTs
                         </Text>
                       </Link>
@@ -176,8 +195,8 @@ export function CheckoutModal() {
                       <Text type='secondary'>Expected Profit</Text>
                     </Col>
                     <Col style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                      <Text>40%</Text>
-                      <Text>0.75 ETH</Text>
+                      <Text>{targetProfit}%</Text>
+                      <Text>{expectedProfit} ETH</Text>
                     </Col>
                   </CardContainer>
                 </div>
@@ -186,13 +205,13 @@ export function CheckoutModal() {
                     <Text type='secondary'>You will receive</Text>
                     <Text type='secondary'>Each NFT will be relisted at</Text>
                     <Text type='secondary'>Collection royalty</Text>
-                    <Text type='secondary'>[name] fee</Text>
+                    <Text type='secondary'>{collection?.name} fee</Text>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
-                    <Text>0.2955 ETH</Text>
-                    <Text>0.0547222 ETH</Text>
-                    <Text>0.0328332 ETH</Text>
-                    <Text>0.0328332 ETH</Text>
+                    <Text>0.2955 ETH</Text> {/* You will receive */}
+                    <Text>{relisted} ETH</Text>
+                    <Text>0.0328332 ETH</Text> {/* Collection royalty */}
+                    <Text>{fee} ETH</Text> {/* Collection fee */}
                   </div>
                 </CardContainer>
               </Card>
