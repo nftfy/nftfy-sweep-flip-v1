@@ -58,7 +58,7 @@ export const useBuyTokens = () => {
         }
       })
       .then(result => setTransaction(result))
-      .catch((err: any) => {
+      .catch((err) => {
         setLoading(false)
         if (err?.type === 'price mismatch') {
           setToast({
