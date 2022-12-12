@@ -32,9 +32,10 @@ export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, 
     setIsModalOpen(false)
   }
 
+  const openSeaFee = 0.025
   const expectedProfit = (targetProfit / 100) * totalPrice
   const relisted = (totalPrice + expectedProfit) / tokens?.length
-  const fee = totalPrice * 0.025
+  const fee = totalPrice * openSeaFee
 
   return (
     <Modal
