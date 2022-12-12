@@ -49,7 +49,7 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
           <Button block onClick={handleCancel}>
             Cancel
           </Button>
-          <Button block type='primary'>
+          <Button block type='primary' onClick={handleCancel}>
             Confirm
           </Button>
         </FooterContainer>
