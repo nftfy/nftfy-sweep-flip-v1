@@ -1,4 +1,6 @@
+import { ArrowDownOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Image, Modal, Row, Typography } from 'antd'
+import Link from 'next/link'
 import { useState } from 'react'
 import styled from 'styled-components'
 
@@ -33,7 +35,7 @@ export function CheckoutModal() {
               Cancel
             </Button>
             <Button style={{ width: 210 }} type='primary' onClick={handleOk}>
-              Confirm
+              Confirm order
             </Button>
           </FooterContainer>
         }
@@ -42,7 +44,7 @@ export function CheckoutModal() {
         onCancel={handleCancel}
       >
         <>
-          <Row>
+          <CheckoutContainer>
             <Col span={10}>
               <TokenContainer>
                 <Text type='secondary'>
@@ -87,15 +89,122 @@ export function CheckoutModal() {
                 </Card>
               </TokenContainer>
             </Col>
-            <Col span={14}></Col>
-          </Row>
+            <Col style={{ width: '100%' }}>
+              <Card
+                title={
+                  <>
+                    <Row style={{ justifyContent: 'space-between' }}>
+                      <Col>Pay</Col>
+                      <Col>
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                          <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
+                          0.197 ETH
+                        </div>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col span={20}>
+                        <Text style={{ fontSize: '12px' }} type='secondary'>
+                          Balance: 4.234231
+                        </Text>
+                      </Col>
+                      <Col>
+                        <Text style={{ fontSize: '12px' }} type='secondary'>
+                          $230.94
+                        </Text>
+                      </Col>
+                    </Row>
+                    <ArrowContainer>
+                      <Button
+                        style={{ position: 'absolute', transform: 'translate(390%,-5%)' }}
+                        size='large'
+                        icon={<ArrowDownOutlined />}
+                      />
+                    </ArrowContainer>
+                  </>
+                }
+                style={{ width: '100%', margin: '12px 0' }}
+              >
+                <>
+                  <Row style={{ justifyContent: 'space-between' }}>
+                    <Col style={{ fontWeight: 600 }}>Receive & Flip</Col>
+                    <Col>
+                      <div style={{ display: 'flex', gap: '5px', fontWeight: 600 }}>
+                        <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
+                        0.197 BEANZ
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span={20} style={{ fontWeight: 600 }}>
+                      <Text style={{ fontSize: '12px' }} type='secondary'>
+                        Balance: 0 BEANZ
+                      </Text>
+                    </Col>
+                    <Col style={{ fontWeight: 600 }}>
+                      <Text style={{ fontSize: '12px' }} type='secondary'>
+                        $237.04
+                      </Text>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span={24}>
+                      <Link href=''>
+                        <Text style={{ display: 'flex', justifyContent: 'center', marginTop: '0px', color: 'var(--primary-color)' }}>
+                          See NFTs
+                        </Text>
+                      </Link>
+                    </Col>
+                  </Row>
+                </>
+              </Card>
+
+              <Card style={{ width: '100%' }}>
+                <div
+                  style={{
+                    marginLeft: '-7px',
+                    marginBottom: '8px',
+                    backgroundColor: 'var(--green-1)',
+                    border: '1px solid var(--green-6)',
+                    borderRadius: '12px',
+                    padding: '5px 8px'
+                  }}
+                >
+                  <CardContainer>
+                    <Col style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <Text type='secondary'>Target Profit</Text>
+                      <Text type='secondary'>Expected Profit</Text>
+                    </Col>
+                    <Col style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                      <Text>40%</Text>
+                      <Text>0.75 ETH</Text>
+                    </Col>
+                  </CardContainer>
+                </div>
+                <CardContainer>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <Text type='secondary'>You will receive</Text>
+                    <Text type='secondary'>Each NFT will be relisted at</Text>
+                    <Text type='secondary'>Collection royalty</Text>
+                    <Text type='secondary'>[name] fee</Text>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
+                    <Text>0.2955 ETH</Text>
+                    <Text>0.0547222 ETH</Text>
+                    <Text>0.0328332 ETH</Text>
+                    <Text>0.0328332 ETH</Text>
+                  </div>
+                </CardContainer>
+              </Card>
+            </Col>
+          </CheckoutContainer>
         </>
       </Modal>
     </>
   )
 }
 
-const { FooterContainer, TokenContainer, CardContent } = {
+const { FooterContainer, TokenContainer, CardContent, CardContainer, CheckoutContainer, ArrowContainer } = {
   FooterContainer: styled.div`
     width: 100%;
     display: flex;
@@ -111,5 +220,23 @@ const { FooterContainer, TokenContainer, CardContent } = {
     display: flex;
     flex-direction: column;
     gap: 8px;
+  `,
+  CardContainer: styled.div`
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-end;
+    display: flex;
+  `,
+  CheckoutContainer: styled.div`
+    display: flex;
+
+    @media (max-width: 638px) {
+      flex-direction: column;
+    }
+  `,
+  ArrowContainer: styled.div`
+    @media (max-width: 638px) {
+      display: none;
+    }
   `
 }
