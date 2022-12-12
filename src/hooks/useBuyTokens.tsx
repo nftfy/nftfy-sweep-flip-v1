@@ -2,6 +2,7 @@ import { setToast } from '@components/shared/setToast'
 import { Execute, paths } from '@reservoir0x/reservoir-kit-client'
 import { useReservoirClient, } from '@reservoir0x/reservoir-kit-ui'
 import { useState } from 'react'
+import message from 'src/message'
 import { useSigner } from 'wagmi'
 
 type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
@@ -21,17 +22,17 @@ export const useBuyTokens = () => {
 
       if (!reservoirClient) {
         setLoading(false)
-        throw 'Client is not initialized'
+        throw message['1001']
       }
 
       if (!signer) {
         setLoading(false)
-        throw 'Missing a signer'
+        throw message['1002']
       }
 
       if (!tokens) {
         setLoading(false)
-        throw 'Missing tokens to sweep'
+        throw message['1003']
       }
 
       let sweepTokens: any[] = []
@@ -44,14 +45,13 @@ export const useBuyTokens = () => {
       }
 
       await reservoirClient.actions.buyToken({
-        tokens: sweepTokens,//change
+        tokens: sweepTokens,
         signer,
         onProgress: (steps: Execute["steps"]) => {
           if (!steps) {
-            return;
+            return
           }
           setSteps(steps)
-          console.log(steps, 'steps')
         },
         options: {
           partial: false,
@@ -95,8 +95,8 @@ export const useBuyTokens = () => {
       })
 
       setLoading(false)
-    } catch(err) {
-      setErrors(err)
+    } catch(error) {
+      setErrors(error)
       setLoading(false)
     }
 
