@@ -13,11 +13,12 @@ type Collections = paths['/collections/v5']['get']['responses']['200']['schema']
 
 export interface CollectionSelectModalProps {
   chainId: number
+  onSelect: (value: ReservoirCollection | undefined) => void
 }
 
 export const CollectionSelectModalVar = makeVar(false)
 
-export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
+export function CollectionSelectModal({ chainId, onSelect }: CollectionSelectModalProps) {
   const CollectionSelectModal = useReactiveVar(CollectionSelectModalVar)
   const [mounted, setMounted] = useState<boolean>(false)
 
@@ -45,7 +46,7 @@ export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
   const [name, setName] = useState<string | undefined>(undefined)
 
   const handleSearch = (search: string) => {
-    setSelectedCollection(undefined)
+    onSelect(undefined)
     if (search.match(/^0x[a-fA-F0-9]{40}$/g)) {
       setId(search)
     } else {
@@ -58,7 +59,7 @@ export function CollectionSelectModal({ chainId }: CollectionSelectModalProps) {
   }, [id, name])
 
   const handleSelect = async (item: ReservoirCollection) => {
-    setSelectedCollection(item)
+    onSelect(item)
     CollectionSelectModalVar(false)
   }
 

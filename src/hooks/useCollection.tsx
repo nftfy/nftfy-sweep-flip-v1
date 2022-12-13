@@ -38,7 +38,7 @@ export const useCollections = (chainId: number) => {
 
     const url = new URL(BASE_API_URL + COLLECTIONS_API_PATH)
     const href = setParams(url, query)
-    
+
     const res = await fetch(href, options)
     const data = (await res.json()) as Schema
 
