@@ -146,11 +146,8 @@ const App: FC<AppProps & { baseUrl: string }> = ({
   }, [defaultTheme, theme])
 
   let options: ReservoirKitProviderProps['options'] = {
-    apiKey: RESERVOIR_API_KEY,
-    apiBase:
-      typeof window !== 'undefined'
-        ? `${window.location.origin}${PROXY_API_BASE}`
-        : `${baseUrl}${PROXY_API_BASE}`,
+    apiKey: process.env.NEXT_PUBLIC_RESERVOIR_API_KEY || undefined,
+    apiBase: process.env.NEXT_PUBLIC_RESERVOIR_API_BASE || "https://api-goerli.reservoir.tools",
     disablePoweredByReservoir:
       DISABLE_POWERED_BY_RESERVOIR != undefined &&
       DISABLE_POWERED_BY_RESERVOIR != null,
