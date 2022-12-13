@@ -4,7 +4,8 @@ import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
 import { ArrowDownOutlined, ControlOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
+import { formatDollar } from 'lib/numbers'
 import { calculateProfit } from '../utils/index'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
@@ -120,13 +121,15 @@ const FormCard = ({ chainId }: FormCardProps) => {
             <Form layout="vertical" form={form} size='large'>
               <FormItem label="Pay">
                 <Box>
-                  <Content></Content>
+                  <Content>
+                  </Content>
                   <Left>
                     <InputWithouBorder
                       bordered={false}
                       value={debounceValue}
                       onChange={handleEthAmount}
                     />
+                    <Text type="secondary">{usdConversion && formatDollar(Number(debounceValue || 0) * usdConversion)}</Text>
                   </Left>
                   <Right>
                     <Button icon={
@@ -151,20 +154,26 @@ const FormCard = ({ chainId }: FormCardProps) => {
                       {
                         collectionData && (
                           <Col style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            {maxInput >= 1 && <Link onClick={() => SweepModalVar(true) }>See NFT</Link> }
-                            <SliderTokens
-                              amount={sweepAmount}
-                              maxAmount={maxInput}
-                              onPlus={handleAddOneSlider}
-                              onMinus={handleRemoveOneSlider}
-                              onChangeAmount={setSweepAmount}
-                            />
+                            {maxInput >= 1 && <Link onClick={() => SweepModalVar(true) } style={{ margin: '0 auto' }}>See NFT</Link> }
+                            {maxInput === 0 ? (
+                              <Text type="danger" style={{ fontSize: 11 }}>No NFT availables</Text>
+                            ) : (
+                              <SliderTokens
+                                amount={maxInput >= 1 ? sweepAmount : 0}
+                                maxAmount={maxInput}
+                                onPlus={handleAddOneSlider}
+                                onMinus={handleRemoveOneSlider}
+                                onChangeAmount={setSweepAmount}
+                              />
+                            )}
                           </Col>
                         )
                       }
-                      <>{maxInput === 0 && <Text type="danger" style={{ fontSize: 11 }}>No NFT availables</Text>}</>
                     </Content>
-                    <Left><InputWithouBorder placeholder="0" bordered={false} value={sweepAmount} /></Left>
+                    <Left>
+                      <InputWithouBorder placeholder="0" bordered={false} value={sweepAmount} />
+                      <Text type="secondary">{usdConversion && formatDollar(Number(sweepTotal) * usdConversion)}</Text>
+                    </Left>
                     <Right>
                       {collectionData ?
                         (
