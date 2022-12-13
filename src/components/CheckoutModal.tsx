@@ -62,7 +62,7 @@ export function CheckoutModal({
   const nftSymbol = collection.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
   const salePrice = expectedProfit ? (totalPrice + expectedProfit) / (tokens?.length || 1) : 0
   const rss = collection.royalties?.bps ? collection.royalties?.bps / 10000 : 0
-  const buyRoyality = totalPrice - totalPrice * rss
+  const buyRoyality =  totalPrice * rss
 
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
 
