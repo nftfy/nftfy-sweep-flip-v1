@@ -51,7 +51,7 @@ export function CheckoutModal({
   useEffect(() => {
     const finalStep = steps?.slice(-1)
     let stepItems
-    finalStep?.map(item => (stepItems = item.items?.values))
+    finalStep?.map(item => stepItems = item.items?.values)
     const status = stepItems ? stepItems[0] : 'incomplete'
     if (status !== 'incomplete') {
       CheckoutModalVar(false)
