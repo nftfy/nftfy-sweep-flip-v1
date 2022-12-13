@@ -11,7 +11,7 @@ export const useBuyTokens = () => {
   const reservoirClient = useReservoirClient()
   const { data: signer } = useSigner()
   const [loading, setLoading] = useState<boolean>(false)
-  const [steps, setSteps] = useState<Execute['steps'] | undefined>(undefined)
+  const [steps, setSteps] = useState<any | undefined>(undefined)
   const [errors, setErrors] = useState<any | undefined>(undefined)
   const [transaction, setTransaction] = useState<any | undefined>(undefined)
 
