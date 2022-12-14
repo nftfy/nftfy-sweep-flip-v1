@@ -14,8 +14,8 @@ import { setToast } from './shared/setToast'
 type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
 interface CheckoutModalProps {
-  collection: ReservoirCollection
-  tokens: Tokens
+  collection: any
+  tokens: any
   totalPrice: number
   userBalanceEth?: number
   userBalanceNft?: number
@@ -52,12 +52,11 @@ export function CheckoutModal({
   useEffect(() => {
     if (steps) {
       const finalStep = steps?.slice(-1)
-      if (finalStep) {
-        if (finalStep.items.status === 'complete') {
+      if (finalStep && finalStep.items[0]) {
+        if (finalStep.items[0].status === 'complete') {
           setToast({
-            kind: 'success',
-            message: `The transaction was completed hash: ${finalStep.items.txHash.substring(0,6)}...`,
-            title: 'Success',
+            message: `The transaction was completed hash: ${finalStep.items[0].txHash.substring(0, 6)}...`,
+            title: 'Success'
           })
           CheckoutModalVar(false)
         }
@@ -68,7 +67,7 @@ export function CheckoutModal({
   const nftSymbol = collection.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
   const salePrice = expectedProfit ? (totalPrice + expectedProfit) / (tokens?.length || 1) : 0
   const rss = collection.royalties?.bps ? collection.royalties?.bps / 10000 : 0
-  const buyRoyality =  totalPrice * rss
+  const buyRoyality = totalPrice * rss
 
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
 
@@ -95,6 +94,7 @@ export function CheckoutModal({
       open={CheckoutModal}
       onOk={handleOk}
       onCancel={handleCancel}
+      maskClosable = {false}
     >
       <>
         <CheckoutContainer>

@@ -2,7 +2,6 @@ import { notification } from 'antd'
 
 interface SetToastProps {
   data: {
-    kind: 'error' | 'success' | 'warning' | 'info'
     title: string
     message: string
   }
