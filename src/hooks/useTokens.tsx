@@ -37,6 +37,7 @@ export const useTokens = (chainId: number) => {
 
     const res = await fetch(href, options)
     const data = (await res.json()) as Schema
+    console.log(data.tokens)
     setTokens(data.tokens)
 
     setLoading(false)

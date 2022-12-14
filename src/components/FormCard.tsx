@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert } from 'antd'
 import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
 import { ArrowDownOutlined, ControlOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount, useBalance } from 'wagmi';
-import { formatDollar } from 'lib/numbers'
+import { formatDollar, formatNumber, formatBN } from 'lib/numbers'
 import { calculateProfit } from '../utils/index'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
@@ -32,22 +32,63 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
   const [form] = Form.useForm()
+  const [formData, setFormData] = useState({
+    ethAmount: 0,
+    sweepAmount: 0,
+    sweepTotal: 0
+  })
+  const { data: balance } = useBalance({ addressOrName: account.address })
   const [profit, setProfit] = useState<number>(40)
   const [expectedProfit, setExpectedProfit] = useState<number>(0)
   const [collectionData, setCollectionData] = useState<ReservoirCollection | undefined>(undefined)
-  const [ethAmount, setEthAmount] = useState<string | undefined>()
-  const [sweepAmount, setSweepAmount] = useState<number>(0)
-  const debounceValue = useDebounce(ethAmount, 100)
+  const debounceValue = useDebounce(formData.ethAmount, 100)
   const [sweepTokens, setSweepTokens] = useState<Tokens>([])
   const [maxInput, setMaxInput] = useState<number>(1)
-  const [sweepTotal, setSweepTotal] = useState<number>(0)
+  const [isSufficientAmount, setIsSufficientAmount] = useState<boolean>(false)
 
   const plainOptions = ['Skip pending', 'Skip suspisious'];
 
   const handleSelectCollection = (data: ReservoirCollection | undefined) => setCollectionData(data)
   const handleEthAmount = (e) => {
-    setEthAmount(e.target.value.trim())
+    const ethAmount = Number(e.target.value.trim())
+    setFormData(state => ({ ...state, ethAmount }))
   }
+  const handleSweepChangeAmount = (value: number) => {
+    setFormData(state => ({ ...state, sweepAmount: value }))
+  }
+  const handleAddOneSlider = () => {
+    if (formData.sweepAmount < maxInput) {
+      setFormData(state => ({ ...state, sweepAmount: state.sweepAmount + 1 }))
+    }
+  }
+  const handleRemoveOneSlider = () => {
+    if (formData.sweepAmount > 1) {
+      setFormData(state => ({ ...state, sweepAmount: state.sweepAmount - 1 }))
+    }
+  }
+
+  useEffect(() => {
+    const execute = () => {
+      let expectedTotal = 0
+      let totalTokens = 0
+      const tokensToSweep = sweepTokens
+      for (let token of tokensToSweep || []) {
+        if (expectedTotal + Number(token?.market?.floorAsk?.price?.amount?.native) > debounceValue) break;
+
+        expectedTotal += Number(token?.market?.floorAsk?.price?.amount?.native)
+        totalTokens += 1
+      }
+
+      setIsSufficientAmount(debounceValue > 0 && totalTokens === 0)
+      setFormData(state => ({
+        ...state,
+        sweepAmount: totalTokens,
+        sweepTotal: expectedTotal
+      }))
+    }
+
+    execute()
+  }, [debounceValue])
 
   useEffect(() => {
     if (account.isDisconnected || !collectionData) return
@@ -67,8 +108,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     )
     setMaxInput(Number(availableTokens?.length))
 
-    const sweepTokens = availableTokens?.slice(0, sweepAmount)
-    setSweepTokens(sweepTokens?.sort((one, two) => {
+    setSweepTokens(availableTokens?.sort((one, two) => {
       if (Number(one.market?.floorAsk?.price?.amount?.native) < Number(two.market?.floorAsk?.price?.amount?.native)) {
         return -1
       }
@@ -79,35 +119,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
 
       return 0
     }))
-
-    const total = sweepTokens?.reduce((total, token) => {
-      if (token?.market?.floorAsk?.price?.amount?.native) {
-        total += token.market.floorAsk.price.amount.native
-      }
-      return total
-    }, 0)
-
-    setExpectedProfit(calculateProfit(total, profit))
-    setSweepTotal(total)
-  }, [sweepAmount, profit, tokens, maxInput])
-
-  useEffect(() => {
-    if (account.isDisconnected || !collectionData || !sweepTokens) return
-
-    setEthAmount(String(sweepTotal))
-  }, [debounceValue, sweepTokens])
-
-  const handleAddOneSlider = () => {
-    if (sweepAmount < maxInput) {
-      setSweepAmount(state => state + 1)
-    }
-  }
-
-  const handleRemoveOneSlider = () => {
-    if (sweepAmount > 1) {
-      setSweepAmount(state => state - 1)
-    }
-  }
+  }, [tokens, maxInput])
 
   return (
     <>
@@ -122,14 +134,19 @@ const FormCard = ({ chainId }: FormCardProps) => {
               <FormItem label="Pay">
                 <Box>
                   <Content>
+                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text type="secondary">{usdConversion && formatDollar(Number(debounceValue || 0) * usdConversion)}</Text>
+                      <Text type="secondary">{`Balance: ${formatBN(balance?.value || 0, 4, balance?.decimals || 2)}`}</Text>
+                    </div>
+                    { isSufficientAmount && <Text type="danger">Is not a suffcient Amount</Text>}
                   </Content>
                   <Left>
-                    <InputWithouBorder
+                    <InputWithoutBorder
                       bordered={false}
+                      type="number"
                       value={debounceValue}
                       onChange={handleEthAmount}
                     />
-                    <Text type="secondary">{usdConversion && formatDollar(Number(debounceValue || 0) * usdConversion)}</Text>
                   </Left>
                   <Right>
                     <Button icon={
@@ -159,11 +176,11 @@ const FormCard = ({ chainId }: FormCardProps) => {
                               <Text type="danger" style={{ fontSize: 11 }}>No NFT availables</Text>
                             ) : (
                               <SliderTokens
-                                amount={maxInput >= 1 ? sweepAmount : 0}
+                                amount={maxInput >= 1 ? formData.sweepAmount : 0}
                                 maxAmount={maxInput}
                                 onPlus={handleAddOneSlider}
                                 onMinus={handleRemoveOneSlider}
-                                onChangeAmount={setSweepAmount}
+                                onChangeAmount={handleSweepChangeAmount}
                               />
                             )}
                           </Col>
@@ -171,8 +188,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
                       }
                     </Content>
                     <Left>
-                      <InputWithouBorder placeholder="0" bordered={false} value={sweepAmount} />
-                      <Text type="secondary">{usdConversion && formatDollar(Number(sweepTotal) * usdConversion)}</Text>
+                      <InputWithoutBorder placeholder="0" bordered={false} value={formData.sweepAmount} />
+                      <Text type="secondary">{usdConversion && formatDollar(Number(formData.sweepTotal) * usdConversion)}</Text>
                     </Left>
                     <Right>
                       {collectionData ?
@@ -212,12 +229,12 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   onChange={(text) => setProfit(Number(text.target.value.trim() || 0))}
                 />
               </FormItem>
-              <FormItem>{sweepTotal && <ProfitAlert type="success" message={`Expected profit: ${expectedProfit.toFixed(8)}`} /> || '' }</FormItem>
+              <FormItem>{formData.sweepTotal && <ProfitAlert type="success" message={`Expected profit: ${expectedProfit.toFixed(8)}`} /> || '' }</FormItem>
               <FormItem>
                 <Space>
                   <CheckGroup options={plainOptions} value={plainOptions} />
                 </Space>
-                <Button type="primary" block disabled={!account.isConnected || !debounceValue || !sweepTotal}>{`Sweep & Flip`}</Button>
+                <Button type="primary" block disabled={!account.isConnected || !debounceValue || !formData.sweepTotal}>{`Sweep & Flip`}</Button>
               </FormItem>
             </Form>
           </Col>
@@ -226,20 +243,20 @@ const FormCard = ({ chainId }: FormCardProps) => {
 
       {modalCollection && <CollectionSelectModal chainId={chainId} onSelect={handleSelectCollection} />}
       {sweepModal && <SweepModal { ...{
-        sweepAmount,
+        sweepAmount: formData.sweepAmount,
         maxInput,
         collection: collectionData,
         tokens: sweepTokens,
-        totalAmount: Number(sweepTotal),
+        totalAmount: Number(formData.sweepTotal),
         onPlus: handleAddOneSlider,
         onMinus: handleRemoveOneSlider,
-        onChangeAmount: setSweepAmount
+        onChangeAmount: handleSweepChangeAmount
       }} />}
     </>
   )
 }
 
-const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem, InputWithouBorder } = {
+const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem, InputWithoutBorder } = {
   Space: styled.div`
     display: flex;
     flex-direction: row;
@@ -278,7 +295,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     grid-area: right;
     justify-self: end;
   `,
-  InputWithouBorder: styled(Input)`
+  InputWithoutBorder: styled(Input)`
     font-size: 1.5rem;
     border: none;
     &::focus {

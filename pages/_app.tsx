@@ -67,7 +67,7 @@ const { chains, provider } = configureChains(
 )
 
 const { connectors } = getDefaultWallets({
-  appName: SOURCE_NAME || 'Reservoir Market',
+  appName: SOURCE_NAME || 'Nftfy',
   chains,
 })
 
