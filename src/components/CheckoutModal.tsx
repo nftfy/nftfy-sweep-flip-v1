@@ -9,6 +9,7 @@ import { paths } from '@reservoir0x/reservoir-kit-client'
 import { useEffect } from 'react'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { formatDollar } from 'lib/numbers'
+import { setToast } from './shared/setToast'
 
 type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
@@ -53,6 +54,11 @@ export function CheckoutModal({
       const finalStep = steps?.slice(-1)
       if (finalStep) {
         if (finalStep.items.status === 'complete') {
+          setToast({
+            kind: 'success',
+            message: `The transaction was completed hash: ${finalStep.items.txHash.substring(0,6)}...`,
+            title: 'Success',
+          })
           CheckoutModalVar(false)
         }
       }
