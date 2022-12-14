@@ -34,14 +34,14 @@ function formatNumber(
   maximumFractionDigits: number = 2
 ) {
   if (!amount) {
-    return '-'
+    return 0
   }
 
   const { format } = new Intl.NumberFormat('en-US', {
     maximumFractionDigits: maximumFractionDigits,
   })
 
-  return format(amount)
+  return Number(format(amount))
 }
 
 /**

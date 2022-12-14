@@ -20,7 +20,7 @@ interface SweepModalProps {
   tokens: Tokens | undefined
   onPlus: () => void
   onMinus: () => void
-  onChangeAmount?: (amount: number) => void
+  onChangeAmount: (amount: number) => void
 }
 
 export const SweepModalVar = makeVar(false)
@@ -61,7 +61,7 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
         <Row gutter={16} align='middle'>
           <Col span={20}>
             <SliderTokens
-              amount={sweepAmount}
+              amount={Number(sweepAmount)}
               maxAmount={maxInput}
               onPlus={onPlus}
               onMinus={onMinus}
@@ -77,7 +77,7 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
           </Col>
         </Row>
         <Row justify={{ ['xs']: 'center', ['lg']: 'start' }} style={{ marginTop: '2.375rem', gap: '1.1rem', width: '100%' }}>
-          {tokens.slice(0, sweepAmount)?.map(nft => (
+          {tokens.slice(0, Number(sweepAmount))?.map(nft => (
             <CardNftContainer
               key={nft.token?.tokenId}
               hoverable

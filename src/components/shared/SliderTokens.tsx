@@ -16,7 +16,7 @@ const SliderTokens = ({ amount, minAmount = 1, maxAmount, onPlus, onMinus, onCha
   return (
     <SliderContainer>
       <MinusIcon style={{ cursor: 'pointer', color: 'var(--primary-color)', width: '1rem' }} onClick={onMinus} />
-      <Slider onChange={onChangeAmount} value={amount} style={{ width: '100%' }} min={minAmount} max={maxAmount} />
+      <Slider onChange={onChangeAmount} value={Number(amount)} style={{ width: '100%' }} min={minAmount} max={maxAmount} />
       <PlusIcon onClick={onPlus}/>
     </SliderContainer>
   )
