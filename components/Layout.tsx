@@ -6,7 +6,6 @@ import Navbar from './Navbar'
 import styled from 'styled-components'
 import NetworkWarning from './NetworkWarning'
 import { Footer } from './Footer'
-import { CheckoutModal } from '@components/CheckoutModal'
 
 const { Content } = LayoutAntd
 
@@ -49,7 +48,6 @@ const Layout: FC<LayoutProps> = ({ chainId, children }) => {
         <Body>
           <Main>
             {children}
-            <CheckoutModal></CheckoutModal>
           </Main>
         </Body>
         <Footer />

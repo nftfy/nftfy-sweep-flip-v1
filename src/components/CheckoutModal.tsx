@@ -14,8 +14,8 @@ import { setToast } from './shared/setToast'
 type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
 interface CheckoutModalProps {
-  collection: any
-  tokens: any
+  collection: ReservoirCollection
+  tokens: Tokens
   totalPrice: number
   userBalanceEth?: number
   userBalanceNft?: number
