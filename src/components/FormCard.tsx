@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert } from 'antd'
 import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
-import { ArrowDownOutlined, ControlOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount, useBalance } from 'wagmi';
-import { formatDollar } from 'lib/numbers'
+import { formatDollar, formatBN } from 'lib/numbers'
 import { calculateProfit } from '../utils/index'
+import useHandleeInputs from '../hooks/useHandleInputs'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
 import { useReactiveVar } from '@apollo/client'
@@ -15,7 +16,6 @@ import { ReservoirCollection } from '../types/ReservoirCollection'
 import SliderTokens from './shared/SliderTokens'
 import { SweepModal, SweepModalVar } from './SweepModal'
 import Link from 'antd/lib/typography/Link'
-import useDebounce from 'src/hooks/useDebounce'
 
 const CheckboxGroup = Checkbox.Group
 
@@ -31,22 +31,86 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const modalCollection = useReactiveVar(CollectionSelectModalVar)
   const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
-  const [form] = Form.useForm()
+  const { value: ethAmount, setValue: setEthAmount, onChange: onChangeEthAmount, reset: resetEthAmount } = useHandleeInputs()
+  const { value: sweepAmount, setValue: setSweepAmount, reset: resetSweepAmount } = useHandleeInputs()
+
+  const { data: balance } = useBalance({ addressOrName: account.address })
   const [profit, setProfit] = useState<number>(40)
   const [expectedProfit, setExpectedProfit] = useState<number>(0)
+
   const [collectionData, setCollectionData] = useState<ReservoirCollection | undefined>(undefined)
-  const [ethAmount, setEthAmount] = useState<string | undefined>()
-  const [sweepAmount, setSweepAmount] = useState<number>(0)
-  const debounceValue = useDebounce(ethAmount, 100)
+  const [sweepTotalEth, setSweepTotalEth] = useState<number>(0)
   const [sweepTokens, setSweepTokens] = useState<Tokens>([])
   const [maxInput, setMaxInput] = useState<number>(1)
-  const [sweepTotal, setSweepTotal] = useState<number>(0)
+  const [isSufficientAmount, setIsSufficientAmount] = useState<boolean>(false)
 
   const plainOptions = ['Skip pending', 'Skip suspisious'];
 
+  const addSweepAmountTotal = (amount: number) => {
+    if (!sweepTokens?.length) return
+
+    let total = 0
+    let totalItems = 0
+    for (const token of sweepTokens || []) {
+      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) break;
+
+      total += Number(token.market?.floorAsk?.price?.amount?.native)
+      totalItems += 1
+    }
+
+    setSweepAmount(totalItems)
+    setIsSufficientAmount(Number(balance?.value) < total)
+    setSweepTotalEth(total)
+    addExpectedProfit(total)
+  }
+
+  const addEthAmountTotal = (sweepValue: number) => {
+    if (!sweepTokens?.length) return
+
+    let total = 0
+    for (const token of sweepTokens?.slice(0, Number(sweepValue)) || []) {
+      total += Number(token.market?.floorAsk?.price?.amount?.native)
+    }
+
+    setEthAmount(total)
+    setIsSufficientAmount(Number(balance?.value) < total)
+    setSweepTotalEth(total)
+    addExpectedProfit(total)
+  }
+
+  const addExpectedProfit = (total: number) => {
+    if (!collectionData || !tokens || !profit) return
+
+    setExpectedProfit(calculateProfit(total, profit))
+  }
+
   const handleSelectCollection = (data: ReservoirCollection | undefined) => setCollectionData(data)
   const handleEthAmount = (e) => {
-    setEthAmount(e.target.value.trim())
+    e.preventDefault()
+    const amount = Number(e.target.value.trim())
+    setEthAmount(amount)
+
+    addSweepAmountTotal(amount)
+  }
+  const handleSweepChangeAmount = (value: number) => {
+    setSweepAmount(value)
+    addEthAmountTotal(value)
+  }
+  const handleAddOneSlider = () => {
+    if (Number(sweepAmount) < maxInput) {
+      const value = Number(sweepAmount) + 1
+      setSweepAmount(value)
+
+      addEthAmountTotal(value)
+    }
+  }
+  const handleRemoveOneSlider = () => {
+    if (Number(sweepAmount) > 1) {
+      const value = Number(sweepAmount) - 1
+      setSweepAmount(value)
+
+      addEthAmountTotal(value)
+    }
   }
 
   useEffect(() => {
@@ -54,6 +118,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
 
     fetchTokens(collectionData.id)
   }, [collectionData])
+
 
   useEffect(() => {
     if (account.isDisconnected || !collectionData || !tokens) return
@@ -65,10 +130,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
         token?.market?.floorAsk?.price?.amount?.native !== null &&
         token?.market?.floorAsk?.price?.currency?.symbol === 'ETH'
     )
-    setMaxInput(Number(availableTokens?.length))
 
-    const sweepTokens = availableTokens?.slice(0, sweepAmount)
-    setSweepTokens(sweepTokens?.sort((one, two) => {
+    const orderTokens = availableTokens?.sort((one, two) => {
       if (Number(one.market?.floorAsk?.price?.amount?.native) < Number(two.market?.floorAsk?.price?.amount?.native)) {
         return -1
       }
@@ -78,36 +141,11 @@ const FormCard = ({ chainId }: FormCardProps) => {
       }
 
       return 0
-    }))
+    })
 
-    const total = sweepTokens?.reduce((total, token) => {
-      if (token?.market?.floorAsk?.price?.amount?.native) {
-        total += token.market.floorAsk.price.amount.native
-      }
-      return total
-    }, 0)
-
-    setExpectedProfit(calculateProfit(total, profit))
-    setSweepTotal(total)
-  }, [sweepAmount, profit, tokens, maxInput])
-
-  useEffect(() => {
-    if (account.isDisconnected || !collectionData || !sweepTokens) return
-
-    setEthAmount(String(sweepTotal))
-  }, [debounceValue, sweepTokens])
-
-  const handleAddOneSlider = () => {
-    if (sweepAmount < maxInput) {
-      setSweepAmount(state => state + 1)
-    }
-  }
-
-  const handleRemoveOneSlider = () => {
-    if (sweepAmount > 1) {
-      setSweepAmount(state => state - 1)
-    }
-  }
+    setMaxInput(Number(availableTokens?.length))
+    setSweepTokens(orderTokens)
+  }, [tokens, maxInput])
 
   return (
     <>
@@ -118,18 +156,34 @@ const FormCard = ({ chainId }: FormCardProps) => {
       >
         <Row gutter={[23, 0]}>
           <Col span={24}>
-            <Form layout="vertical" form={form} size='large'>
+            <Form layout="vertical" size='large'>
               <FormItem label="Pay">
                 <Box>
                   <Content>
+                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <div>
+                        <Text type="secondary">
+                          {usdConversion && formatDollar(Number(ethAmount) * usdConversion) || 0}
+                        </Text>
+                        <Text type="secondary">
+                          {ethAmount !== sweepTotalEth && sweepTotalEth !== 0 && (
+                            <Button type="link"  onClick={() => setEthAmount(sweepTotalEth)}>
+                              {`use: (${sweepTotalEth})`}
+                            </Button>
+                          )}
+                        </Text>
+                      </div>
+                      <Text type="secondary">{`Balance: ${formatBN(balance?.value || 0, 4, balance?.decimals || 2)}`}</Text>
+                    </div>
+                    { isSufficientAmount && <Text type="danger">Is not a suffcient Amount</Text>}
                   </Content>
                   <Left>
-                    <InputWithouBorder
+                    <InputWithoutBorder
                       bordered={false}
-                      value={debounceValue}
+                      type="number"
+                      value={ethAmount}
                       onChange={handleEthAmount}
                     />
-                    <Text type="secondary">{usdConversion && formatDollar(Number(debounceValue || 0) * usdConversion)}</Text>
                   </Left>
                   <Right>
                     <Button icon={
@@ -159,11 +213,11 @@ const FormCard = ({ chainId }: FormCardProps) => {
                               <Text type="danger" style={{ fontSize: 11 }}>No NFT availables</Text>
                             ) : (
                               <SliderTokens
-                                amount={maxInput >= 1 ? sweepAmount : 0}
+                                amount={maxInput >= 1 ? Number(sweepAmount) : 0}
                                 maxAmount={maxInput}
                                 onPlus={handleAddOneSlider}
                                 onMinus={handleRemoveOneSlider}
-                                onChangeAmount={setSweepAmount}
+                                onChangeAmount={handleSweepChangeAmount}
                               />
                             )}
                           </Col>
@@ -171,8 +225,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
                       }
                     </Content>
                     <Left>
-                      <InputWithouBorder placeholder="0" bordered={false} value={sweepAmount} />
-                      <Text type="secondary">{usdConversion && formatDollar(Number(sweepTotal) * usdConversion)}</Text>
+                      <InputWithoutBorder placeholder="0" bordered={false} value={sweepAmount} />
+                      <Text type="secondary">{usdConversion && formatDollar(Number(sweepTotalEth) * usdConversion)}</Text>
                     </Left>
                     <Right>
                       {collectionData ?
@@ -209,15 +263,18 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   placeholder='0%'
                   style={{ textAlign: 'center' }}
                   value={profit}
-                  onChange={(text) => setProfit(Number(text.target.value.trim() || 0))}
+                  onChange={(text) => {
+                    setProfit(Number(text.target.value.trim() || 0))
+                    setExpectedProfit(calculateProfit(sweepTotalEth, Number(text.target.value.trim())))
+                  }}
                 />
               </FormItem>
-              <FormItem>{sweepTotal && <ProfitAlert type="success" message={`Expected profit: ${expectedProfit.toFixed(8)}`} /> || '' }</FormItem>
+              <FormItem>{sweepTotalEth && <ProfitAlert type="success" message={`Expected profit: ${expectedProfit?.toFixed(8)}`} /> || '' }</FormItem>
               <FormItem>
                 <Space>
                   <CheckGroup options={plainOptions} value={plainOptions} />
                 </Space>
-                <Button type="primary" block disabled={!account.isConnected || !debounceValue || !sweepTotal}>{`Sweep & Flip`}</Button>
+                <Button type="primary" block disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount}>{`Sweep & Flip`}</Button>
               </FormItem>
             </Form>
           </Col>
@@ -226,20 +283,20 @@ const FormCard = ({ chainId }: FormCardProps) => {
 
       {modalCollection && <CollectionSelectModal chainId={chainId} onSelect={handleSelectCollection} />}
       {sweepModal && <SweepModal { ...{
-        sweepAmount,
+        sweepAmount: Number(sweepAmount),
         maxInput,
         collection: collectionData,
         tokens: sweepTokens,
-        totalAmount: Number(sweepTotal),
+        totalAmount: sweepTotalEth,
         onPlus: handleAddOneSlider,
         onMinus: handleRemoveOneSlider,
-        onChangeAmount: setSweepAmount
+        onChangeAmount: handleSweepChangeAmount
       }} />}
     </>
   )
 }
 
-const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem, InputWithouBorder } = {
+const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem, InputWithoutBorder } = {
   Space: styled.div`
     display: flex;
     flex-direction: row;
@@ -278,7 +335,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     grid-area: right;
     justify-self: end;
   `,
-  InputWithouBorder: styled(Input)`
+  InputWithoutBorder: styled(Input)`
     font-size: 1.5rem;
     border: none;
     &::focus {
