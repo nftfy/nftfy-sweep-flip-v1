@@ -1,59 +1,100 @@
-import { ArrowDownOutlined } from '@ant-design/icons'
+import { makeVar, useReactiveVar } from '@apollo/client'
+import { ArrowDownOutlined, LoadingOutlined } from '@ant-design/icons'
 import { ReservoirCollection } from '@appTypes/ReservoirCollection'
-import { Button, Card, Col, Image, Modal, Row, Typography } from 'antd'
+import { Button, Card, Col, Image, Modal, Row, Typography, Spin } from 'antd'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useBuyTokens } from 'src/hooks/useBuyTokens'
 import styled from 'styled-components'
+import { paths } from '@reservoir0x/reservoir-kit-client'
+import { useEffect } from 'react'
+import useCoinConversion from 'src/hooks/useCoinConversion'
+import { formatDollar } from 'lib/numbers'
+import { setToast } from './shared/setToast'
+
+type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
 interface CheckoutModalProps {
   collection: ReservoirCollection
-  tokens: any[]
+  tokens: Tokens
   totalPrice: number
-  userBalanceEth: string
-  userBalanceNft: string
-  targetProfit: number
+  userBalanceEth?: number
+  userBalanceNft?: number
+  targetProfit?: number
+  expectedProfit?: number
+  marketplaceFee?: number
 }
 
-export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, userBalanceNft, targetProfit }: CheckoutModalProps) {
-  // const { execute, steps, errors, loading } = useBuyTokens()
-  const [isModalOpen, setIsModalOpen] = useState(false)
+export const CheckoutModalVar = makeVar(true)
+
+export function CheckoutModal({
+  collection,
+  tokens,
+  totalPrice,
+  userBalanceEth,
+  userBalanceNft,
+  targetProfit,
+  expectedProfit,
+  marketplaceFee
+}: CheckoutModalProps) {
+  const CheckoutModal = useReactiveVar(CheckoutModalVar)
+  const usdConversion = useCoinConversion('usd', 'ETH')
+  const { execute, steps, loading } = useBuyTokens()
   const { Title, Text } = Typography
 
-  const showModal = () => {
-    setIsModalOpen(true)
-  }
-
   const handleOk = () => {
-    // execute(tokens)
-    setIsModalOpen(false)
+    execute(tokens)
   }
 
   const handleCancel = () => {
-    setIsModalOpen(false)
+    CheckoutModalVar(false)
   }
 
-  const openSeaFee = 0.025
-  const expectedProfit = (targetProfit / 100) * totalPrice
-  const relisted = (totalPrice + expectedProfit) / tokens?.length
-  const fee = totalPrice * openSeaFee
+  useEffect(() => {
+    if (steps) {
+      const finalStep = steps?.slice(-1)
+      if (finalStep && finalStep.items[0]) {
+        if (finalStep.items[0].status === 'complete') {
+          setToast({
+            message: `The transaction was completed hash: ${finalStep.items[0].txHash.substring(0, 6)}...`,
+            title: 'Success'
+          })
+          CheckoutModalVar(false)
+        }
+      }
+    }
+  }, [steps])
+
+  const nftSymbol = collection.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
+  const salePrice = expectedProfit ? (totalPrice + expectedProfit) / (tokens?.length || 1) : 0
+  const rss = collection.royalties?.bps ? collection.royalties?.bps / 10000 : 0
+  const buyRoyality = totalPrice * rss
+
+  const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
 
   return (
     <Modal
       title='Sweep & Flip'
       width={740}
       footer={
-        <FooterContainer>
-          <Button style={{ width: 210 }} onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button style={{ width: 210 }} type='primary' onClick={handleOk}>
-            Confirm order
-          </Button>
-        </FooterContainer>
+        !loading ? (
+          <FooterContainer>
+            <Button style={{ width: 210 }} onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button style={{ width: 210 }} type='primary' onClick={handleOk}>
+              Confirm order
+            </Button>
+          </FooterContainer>
+        ) : (
+          <FooterContainer>
+            <Spin indicator={antIcon} />
+          </FooterContainer>
+        )
       }
-      open={isModalOpen}
+      open={CheckoutModal}
       onOk={handleOk}
       onCancel={handleCancel}
+      maskClosable = {false}
     >
       <>
         <CheckoutContainer>
@@ -83,7 +124,7 @@ export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, 
                       <Text type='secondary'>Best offer</Text>
                     </Col>
                     <Col span={3} style={{ display: 'flex', justifyContent: 'center' }}>
-                      <Text style={{ textAlign: 'center', width: '100%' }}>0</Text>
+                      <Text style={{ textAlign: 'center', width: '100%' }}>{collection?.floorAsk?.price?.amount?.native}</Text>
                     </Col>
                     <Col span={1}>
                       <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
@@ -94,7 +135,7 @@ export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, 
                       <Text type='secondary'>RSS</Text>
                     </Col>
                     <Col span={4} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      10%
+                      {rss}%
                     </Col>
                   </Row>
                 </CardContent>
@@ -120,7 +161,7 @@ export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, 
                         Balance: {userBalanceEth} ETH
                       </Text>
                       <Text style={{ fontSize: '12px' }} type='secondary'>
-                        $230.94
+                        {usdConversion && formatDollar(Number(userBalanceEth) * usdConversion)}
                       </Text>
                     </Col>
                   </Row>
@@ -144,10 +185,10 @@ export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, 
                 <Row>
                   <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontWeight: 600 }}>
                     <Text style={{ fontSize: '12px' }} type='secondary'>
-                      Balance: {userBalanceNft} {collection?.name}
+                      Balance: {userBalanceNft} {nftSymbol}
                     </Text>
                     <Text style={{ fontSize: '12px' }} type='secondary'>
-                      $237.04
+                      {usdConversion && formatDollar(Number(userBalanceEth) * usdConversion)}
                     </Text>
                   </Col>
                 </Row>
@@ -200,10 +241,10 @@ export function CheckoutModal({ collection, tokens, totalPrice, userBalanceEth, 
                   <Text type='secondary'>{collection?.name} fee</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
-                  <Text>0.2955 ETH</Text> {/* You will receive */}
-                  <Text>{relisted} ETH</Text>
-                  <Text>0.0328332 ETH</Text> {/* Collection royalty */}
-                  <Text>{fee} ETH</Text> {/* Collection fee */}
+                  <Text>{expectedProfit} ETH</Text>
+                  <Text>{salePrice} ETH</Text>
+                  <Text>{buyRoyality} ETH</Text>
+                  <Text>{marketplaceFee} ETH</Text>
                 </div>
               </CardContainer>
             </Card>

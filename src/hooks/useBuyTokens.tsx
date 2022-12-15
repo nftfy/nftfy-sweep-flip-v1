@@ -11,7 +11,7 @@ export const useBuyTokens = () => {
   const reservoirClient = useReservoirClient()
   const { data: signer } = useSigner()
   const [loading, setLoading] = useState<boolean>(false)
-  const [steps, setSteps] = useState<Execute['steps'] | undefined>(undefined)
+  const [steps, setSteps] = useState<any | undefined>(undefined)
   const [errors, setErrors] = useState<any | undefined>(undefined)
   const [transaction, setTransaction] = useState<any | undefined>(undefined)
 
@@ -62,7 +62,6 @@ export const useBuyTokens = () => {
         setLoading(false)
         if (err?.type === 'price mismatch') {
           setToast({
-            kind: 'error',
             message: 'Price was greater than expected.',
             title: 'Could not buy token',
           })
@@ -71,7 +70,6 @@ export const useBuyTokens = () => {
 
         if (err?.message.includes('ETH balance')) {
           setToast({
-            kind: 'error',
             message: 'You have insufficient funds to buy this token.',
             title: 'Not enough ETH balance',
           })
@@ -81,14 +79,12 @@ export const useBuyTokens = () => {
         if (err?.code === 4001) {
           setSteps(undefined)
           setToast({
-            kind: 'error',
             message: 'You have canceled the transaction.',
             title: 'User canceled transaction',
           })
           return
         }
         setToast({
-          kind: 'error',
           message: 'The transaction was not completed.',
           title: 'Could not buy tokens',
         })
