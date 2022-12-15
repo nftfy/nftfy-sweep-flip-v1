@@ -14,27 +14,29 @@ import { setToast } from './shared/setToast'
 type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
 interface CheckoutModalProps {
-  collection: ReservoirCollection
-  tokens: Tokens
-  totalPrice: number
-  userBalanceEth?: number
+  collection?: ReservoirCollection
+  tokens?: Tokens
+  totalPrice?: number
+  userBalanceEth?: string | number
   userBalanceNft?: number
   targetProfit?: number
   expectedProfit?: number
   marketplaceFee?: number
+  onCallback?: () => void
 }
 
-export const CheckoutModalVar = makeVar(true)
+export const CheckoutModalVar = makeVar(false)
 
 export function CheckoutModal({
   collection,
   tokens,
-  totalPrice,
+  totalPrice = 0,
   userBalanceEth,
   userBalanceNft,
   targetProfit,
   expectedProfit,
-  marketplaceFee
+  marketplaceFee,
+  onCallback
 }: CheckoutModalProps) {
   const CheckoutModal = useReactiveVar(CheckoutModalVar)
   const usdConversion = useCoinConversion('usd', 'ETH')
@@ -51,22 +53,24 @@ export function CheckoutModal({
 
   useEffect(() => {
     if (steps) {
-      const finalStep = steps?.slice(-1)
-      if (finalStep && finalStep.items[0]) {
-        if (finalStep.items[0].status === 'complete') {
-          setToast({
-            message: `The transaction was completed hash: ${finalStep.items[0].txHash.substring(0, 6)}...`,
-            title: 'Success'
-          })
-          CheckoutModalVar(false)
-        }
+      const [finalStep] = steps?.slice(-1)
+      const [step] = finalStep?.items || []
+      if (!step) return
+
+      if (step.status === 'complete') {
+        setToast({
+          message: `The transaction was completed hash: ${step.txHash.substring(0, 6)}...`,
+          title: 'Success'
+        })
+        CheckoutModalVar(false)
+        onCallback && onCallback()
       }
     }
   }, [steps])
 
-  const nftSymbol = collection.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
+  const nftSymbol = collection?.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
   const salePrice = expectedProfit ? (totalPrice + expectedProfit) / (tokens?.length || 1) : 0
-  const rss = collection.royalties?.bps ? collection.royalties?.bps / 10000 : 0
+  const rss = collection?.royalties?.bps ? collection.royalties?.bps / 10000 : 0
   const buyRoyality = totalPrice * rss
 
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
@@ -190,22 +194,6 @@ export function CheckoutModal({
                     <Text style={{ fontSize: '12px' }} type='secondary'>
                       {usdConversion && formatDollar(Number(userBalanceEth) * usdConversion)}
                     </Text>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={24}>
-                    <Link href=''>
-                      <Text
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'center',
-                          marginTop: '0px',
-                          color: 'var(--primary-color)'
-                        }}
-                      >
-                        See NFTs
-                      </Text>
-                    </Link>
                   </Col>
                 </Row>
               </>
