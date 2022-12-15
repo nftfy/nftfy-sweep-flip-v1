@@ -6,7 +6,7 @@ import { ArrowDownOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount, useBalance } from 'wagmi';
 import { formatDollar, formatBN } from 'lib/numbers'
-import { calculateProfit } from '../utils/index'
+import { calculateProfit, OPENSEA_FEE } from '../utils/index'
 import useHandleeInputs from '../hooks/useHandleInputs'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
@@ -16,6 +16,7 @@ import { ReservoirCollection } from '../types/ReservoirCollection'
 import SliderTokens from './shared/SliderTokens'
 import { SweepModal, SweepModalVar } from './SweepModal'
 import Link from 'antd/lib/typography/Link'
+import { CheckoutModal, CheckoutModalVar } from './CheckoutModal'
 
 const CheckboxGroup = Checkbox.Group
 
@@ -29,6 +30,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const account = useAccount()
   const usdConversion = useCoinConversion('usd', 'ETH')
   const modalCollection = useReactiveVar(CollectionSelectModalVar)
+  const modalCheckout = useReactiveVar(CheckoutModalVar)
   const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
   const { value: ethAmount, setValue: setEthAmount, onChange: onChangeEthAmount, reset: resetEthAmount } = useHandleeInputs()
@@ -113,6 +115,15 @@ const FormCard = ({ chainId }: FormCardProps) => {
     }
   }
 
+  const resetFormData = () => {
+    setSweepAmount(0)
+    setEthAmount(0)
+    setSweepTotalEth(0)
+    setMaxInput(0)
+    setCollectionData(undefined)
+    setSweepTokens([])
+  }
+
   useEffect(() => {
     if (account.isDisconnected || !collectionData) return
 
@@ -143,7 +154,11 @@ const FormCard = ({ chainId }: FormCardProps) => {
       return 0
     })
 
-    setMaxInput(Number(availableTokens?.length))
+    const limit = Number(availableTokens?.length)
+    setSweepAmount(0)
+    setEthAmount(0)
+    setSweepTotalEth(0)
+    setMaxInput(limit)
     setSweepTokens(orderTokens)
   }, [tokens, maxInput])
 
@@ -168,7 +183,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                         <Text type="secondary">
                           {ethAmount !== sweepTotalEth && sweepTotalEth !== 0 && (
                             <Button type="link"  onClick={() => setEthAmount(sweepTotalEth)}>
-                              {`use: (${sweepTotalEth})`}
+                              {`use: (${formatBN(sweepTotalEth, 4, 2)})`}
                             </Button>
                           )}
                         </Text>
@@ -274,7 +289,14 @@ const FormCard = ({ chainId }: FormCardProps) => {
                 <Space>
                   <CheckGroup options={plainOptions} value={plainOptions} />
                 </Space>
-                <Button type="primary" block disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount}>{`Sweep & Flip`}</Button>
+                <Button
+                  type="primary"
+                  block
+                  disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount}
+                  onClick={() => CheckoutModalVar(true) }
+                >
+                  {`Sweep & Flip`}
+                </Button>
               </FormItem>
             </Form>
           </Col>
@@ -292,6 +314,17 @@ const FormCard = ({ chainId }: FormCardProps) => {
         onMinus: handleRemoveOneSlider,
         onChangeAmount: handleSweepChangeAmount
       }} />}
+      {modalCheckout && <CheckoutModal
+        collection={collectionData}
+        tokens={sweepTokens?.slice(0, Number(sweepAmount))}
+        totalPrice={sweepTotalEth}
+        userBalanceEth={formatBN(balance?.value || 0, 4, balance?.decimals || 2).toString()}
+        userBalanceNft={0}
+        targetProfit={profit}
+        expectedProfit={expectedProfit}
+        marketplaceFee={OPENSEA_FEE}
+        onCallback={resetFormData}
+      />}
     </>
   )
 }
