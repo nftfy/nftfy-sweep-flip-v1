@@ -62,6 +62,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     setSweepAmount(totalItems)
     setIsSufficientAmount(Number(balance?.value) < total)
     setSweepTotalEth(total)
+    addExpectedProfit(total)
   }
 
   const addEthAmountTotal = (sweepValue: number) => {
@@ -75,6 +76,13 @@ const FormCard = ({ chainId }: FormCardProps) => {
     setEthAmount(total)
     setIsSufficientAmount(Number(balance?.value) < total)
     setSweepTotalEth(total)
+    addExpectedProfit(total)
+  }
+
+  const addExpectedProfit = (total: number) => {
+    if (!collectionData || !tokens || !profit) return
+
+    setExpectedProfit(calculateProfit(total, profit))
   }
 
   const handleSelectCollection = (data: ReservoirCollection | undefined) => setCollectionData(data)
@@ -112,6 +120,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     fetchTokens(collectionData.id)
   }, [collectionData])
 
+
   useEffect(() => {
     if (account.isDisconnected || !collectionData || !tokens) return
     const availableTokens = tokens?.filter(
@@ -139,12 +148,6 @@ const FormCard = ({ chainId }: FormCardProps) => {
     setSweepTokens(orderTokens)
   }, [tokens, maxInput])
 
-  useEffect(() => {
-    if (!profit) return
-
-    setExpectedProfit()
-  }, [sweepTotalEth])
-
   return (
     <>
       <Card
@@ -159,9 +162,18 @@ const FormCard = ({ chainId }: FormCardProps) => {
                 <Box>
                   <Content>
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text type="secondary">
-                        {usdConversion && formatDollar(Number(ethAmount) * usdConversion) || 0}
-                      </Text>
+                      <div>
+                        <Text type="secondary">
+                          {usdConversion && formatDollar(Number(ethAmount) * usdConversion) || 0}
+                        </Text>
+                        <Text type="secondary">
+                          {ethAmount !== sweepTotalEth && sweepTotalEth !== 0 && (
+                            <Button type="link"  onClick={() => setEthAmount(sweepTotalEth)}>
+                              {`use: (${sweepTotalEth})`}
+                            </Button>
+                          )}
+                        </Text>
+                      </div>
                       <Text type="secondary">{`Balance: ${formatBN(balance?.value || 0, 4, balance?.decimals || 2)}`}</Text>
                     </div>
                     { isSufficientAmount && <Text type="danger">Is not a suffcient Amount</Text>}
@@ -252,15 +264,18 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   placeholder='0%'
                   style={{ textAlign: 'center' }}
                   value={profit}
-                  onChange={(text) => setProfit(Number(text.target.value.trim() || 0))}
+                  onChange={(text) => {
+                    setProfit(Number(text.target.value.trim() || 0))
+                    setExpectedProfit(calculateProfit(sweepTotalEth, Number(text.target.value.trim())))
+                  }}
                 />
               </FormItem>
-              <FormItem>{sweepTotalEth && <ProfitAlert type="success" message={`Expected profit: ${expectedProfit.toFixed(8)}`} /> || '' }</FormItem>
+              <FormItem>{sweepTotalEth && <ProfitAlert type="success" message={`Expected profit: ${expectedProfit?.toFixed(8)}`} /> || '' }</FormItem>
               <FormItem>
                 <Space>
                   <CheckGroup options={plainOptions} value={plainOptions} />
                 </Space>
-                <Button type="primary" block disabled={!account.isConnected || !ethAmount || !sweepTotalEth}>{`Sweep & Flip`}</Button>
+                <Button type="primary" block disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount}>{`Sweep & Flip`}</Button>
               </FormItem>
             </Form>
           </Col>
