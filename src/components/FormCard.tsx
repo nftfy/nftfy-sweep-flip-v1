@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert } from 'antd'
 import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
-import { ArrowDownOutlined, ControlOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount, useBalance } from 'wagmi';
-import { formatDollar, formatNumber, formatBN } from 'lib/numbers'
+import { formatDollar, formatBN } from 'lib/numbers'
 import { calculateProfit } from '../utils/index'
 import useHandleeInputs from '../hooks/useHandleInputs'
 import useCoinConversion from 'src/hooks/useCoinConversion'
@@ -16,7 +16,6 @@ import { ReservoirCollection } from '../types/ReservoirCollection'
 import SliderTokens from './shared/SliderTokens'
 import { SweepModal, SweepModalVar } from './SweepModal'
 import Link from 'antd/lib/typography/Link'
-import useDebounce from 'src/hooks/useDebounce'
 
 const CheckboxGroup = Checkbox.Group
 
