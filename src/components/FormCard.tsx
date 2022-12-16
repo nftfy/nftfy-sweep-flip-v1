@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert } from 'antd'
+import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert, Tooltip } from 'antd'
 import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
-import { ArrowDownOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi'
 import { formatDollar, formatBN } from 'lib/numbers'
 import { calculateProfit, OPENSEA_FEE } from '../utils/index'
 import useHandleeInputs from '../hooks/useHandleInputs'
@@ -46,7 +46,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const [maxInput, setMaxInput] = useState<number>(1)
   const [isSufficientAmount, setIsSufficientAmount] = useState<boolean>(false)
 
-  const plainOptions = ['Skip pending', 'Skip suspisious'];
+  const plainOptions = ['Skip pending', 'Skip suspisious']
 
   const addSweepAmountTotal = (amount: number) => {
     if (!sweepTokens?.length) return
@@ -54,7 +54,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     let total = 0
     let totalItems = 0
     for (const token of sweepTokens || []) {
-      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) break;
+      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) break
 
       total += Number(token.market?.floorAsk?.price?.amount?.native)
       totalItems += 1
@@ -87,7 +87,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
   }
 
   const handleSelectCollection = (data: ReservoirCollection | undefined) => setCollectionData(data)
-  const handleEthAmount = (e) => {
+  const handleEthAmount = e => {
     e.preventDefault()
     const amount = Number(e.target.value.trim())
     setEthAmount(amount)
@@ -130,7 +130,6 @@ const FormCard = ({ chainId }: FormCardProps) => {
     fetchTokens(collectionData.id)
   }, [collectionData])
 
-
   useEffect(() => {
     if (account.isDisconnected || !collectionData || !tokens) return
     const availableTokens = tokens?.filter(
@@ -165,135 +164,147 @@ const FormCard = ({ chainId }: FormCardProps) => {
   return (
     <>
       <Card
-        title={`Sweep & Flip`}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text strong>Sweep & Flip</Text>
+            <Tooltip title='Sweep the floor price NFTs, set your desired target profit, and automatically flip them all at once to achieve your selling goals.'>
+              <QuestionCircleOutlined size={24} />
+            </Tooltip>
+          </div>
+        }
         style={{ width: '100%' }}
         type='inner'
       >
         <Row gutter={[23, 0]}>
           <Col span={24}>
-            <Form layout="vertical" size='large'>
-              <FormItem label="Pay">
+            <Form layout='vertical' size='large'>
+              <FormItem label='Pay'>
                 <Box>
                   <Content>
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                       <div>
-                        <Text type="secondary">
-                          {usdConversion && formatDollar(Number(ethAmount) * usdConversion) || 0}
-                        </Text>
-                        <Text type="secondary">
+                        <Text type='secondary'>{(usdConversion && formatDollar(Number(ethAmount) * usdConversion)) || 0}</Text>
+                        <Text type='secondary'>
                           {ethAmount !== sweepTotalEth && sweepTotalEth !== 0 && (
-                            <Button type="link"  onClick={() => setEthAmount(sweepTotalEth)}>
+                            <Button type='link' onClick={() => setEthAmount(sweepTotalEth)}>
                               {`use: (${formatBN(sweepTotalEth, 4, 2)})`}
                             </Button>
                           )}
                         </Text>
                       </div>
-                      <Text type="secondary">{`Balance: ${formatBN(balance?.value || 0, 4, balance?.decimals || 2)}`}</Text>
+                      <Text type='secondary'>{`Balance: ${formatBN(balance?.value || 0, 4, balance?.decimals || 2)}`}</Text>
                     </div>
-                    { isSufficientAmount && <Text type="danger">Is not a suffcient Amount</Text>}
+                    {isSufficientAmount && <Text type='danger'>Is not a suffcient Amount</Text>}
                   </Content>
                   <Left>
-                    <InputWithoutBorder
-                      bordered={false}
-                      type="number"
-                      value={ethAmount}
-                      onChange={handleEthAmount}
-                    />
+                    <InputWithoutBorder bordered={false} type='number' value={ethAmount} onChange={handleEthAmount} />
                   </Left>
                   <Right>
-                    <Button icon={
-                      <Image
-                        src="/icons/eth-balance.svg"
-                        preview={false}
-                        width={24}
-                        height={24}
-                        style={{ paddingRight: 2, paddingBottom: 2 }}
-                      />
-                    } size="large">
+                    <Button
+                      icon={
+                        <Image
+                          src='/icons/eth-balance.svg'
+                          preview={false}
+                          width={24}
+                          height={24}
+                          style={{ paddingRight: 2, paddingBottom: 2 }}
+                        />
+                      }
+                      size='large'
+                    >
                       ETH
                     </Button>
                   </Right>
                 </Box>
               </FormItem>
-              <Space><Button size="large" icon={<ArrowDownOutlined />} /></Space>
+              <Space>
+                <Button size='large' icon={<ArrowDownOutlined />} />
+              </Space>
               <Top>
-                <FormItem label="Receive">
+                <FormItem label='Receive'>
                   <Box>
                     <Content>
-                      {
-                        collectionData && (
-                          <Col style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            {maxInput >= 1 && <Link onClick={() => SweepModalVar(true) } style={{ margin: '0 auto' }}>See NFT</Link> }
-                            {maxInput === 0 ? (
-                              <Text type="danger" style={{ fontSize: 11 }}>No NFT availables</Text>
-                            ) : (
-                              <SliderTokens
-                                amount={maxInput >= 1 ? Number(sweepAmount) : 0}
-                                maxAmount={maxInput}
-                                onPlus={handleAddOneSlider}
-                                onMinus={handleRemoveOneSlider}
-                                onChangeAmount={handleSweepChangeAmount}
-                              />
-                            )}
-                          </Col>
-                        )
-                      }
+                      {collectionData && (
+                        <Col style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          {maxInput >= 1 && (
+                            <Link onClick={() => SweepModalVar(true)} style={{ margin: '0 auto' }}>
+                              See NFT
+                            </Link>
+                          )}
+                          {maxInput === 0 ? (
+                            <Text type='danger' style={{ fontSize: 11 }}>
+                              No NFT availables
+                            </Text>
+                          ) : (
+                            <SliderTokens
+                              amount={maxInput >= 1 ? Number(sweepAmount) : 0}
+                              maxAmount={maxInput}
+                              onPlus={handleAddOneSlider}
+                              onMinus={handleRemoveOneSlider}
+                              onChangeAmount={handleSweepChangeAmount}
+                            />
+                          )}
+                        </Col>
+                      )}
                     </Content>
                     <Left>
-                      <InputWithoutBorder placeholder="0" bordered={false} value={sweepAmount} />
-                      <Text type="secondary">{usdConversion && formatDollar(Number(sweepTotalEth) * usdConversion)}</Text>
+                      <InputWithoutBorder placeholder='0' bordered={false} value={sweepAmount} />
+                      <Text type='secondary'>{usdConversion && formatDollar(Number(sweepTotalEth) * usdConversion)}</Text>
                     </Left>
                     <Right>
-                      {collectionData ?
-                        (
-                          <Button size="large" onClick={() => CollectionSelectModalVar(true)}>
-                            <Space>
-                              <CollectionImage
-                                src={collectionData?.image}
-                                diameter={24}
-                                address={collectionData?.id}
-                                loading={false}
-                                borderSize='1px'
-                                borderColor='var(--gray-7)'
-                              />&nbsp;
-                              <div>{String(collectionData?.name).length > 10 ? `${collectionData?.name?.slice(0, 10)}...` : collectionData?.name}</div>
-                              <FaAngleDown />
-                            </Space>
-                          </Button>
-                        )
-                        : (
-                          <Button type="primary" size="large" onClick={() => CollectionSelectModalVar(true)}>
-                            <Space>
-                              <div>Select collection</div> <FaAngleDown />
-                            </Space>
-                          </Button>
-                        )}
+                      {collectionData ? (
+                        <Button size='large' onClick={() => CollectionSelectModalVar(true)}>
+                          <Space>
+                            <CollectionImage
+                              src={collectionData?.image}
+                              diameter={24}
+                              address={collectionData?.id}
+                              loading={false}
+                              borderSize='1px'
+                              borderColor='var(--gray-7)'
+                            />
+                            &nbsp;
+                            <div>
+                              {String(collectionData?.name).length > 10 ? `${collectionData?.name?.slice(0, 10)}...` : collectionData?.name}
+                            </div>
+                            <FaAngleDown />
+                          </Space>
+                        </Button>
+                      ) : (
+                        <Button type='primary' size='large' onClick={() => CollectionSelectModalVar(true)}>
+                          <Space>
+                            <div>Select collection</div> <FaAngleDown />
+                          </Space>
+                        </Button>
+                      )}
                     </Right>
                   </Box>
                 </FormItem>
               </Top>
 
-              <FormItem label="Set target profit">
+              <FormItem label='Set target profit'>
                 <Input
                   placeholder='0%'
                   style={{ textAlign: 'center' }}
                   value={profit}
-                  onChange={(text) => {
+                  onChange={text => {
                     setProfit(Number(text.target.value.trim() || 0))
                     setExpectedProfit(calculateProfit(sweepTotalEth, Number(text.target.value.trim())))
                   }}
                 />
               </FormItem>
-              <FormItem>{sweepTotalEth && <ProfitAlert type="success" message={`Expected profit: ${expectedProfit?.toFixed(8)}`} /> || '' }</FormItem>
+              <FormItem>
+                {(sweepTotalEth && <ProfitAlert type='success' message={`Expected profit: ${expectedProfit?.toFixed(8)}`} />) || ''}
+              </FormItem>
               <FormItem>
                 <Space>
                   <CheckGroup options={plainOptions} value={plainOptions} />
                 </Space>
                 <Button
-                  type="primary"
+                  type='primary'
                   block
                   disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount}
-                  onClick={() => CheckoutModalVar(true) }
+                  onClick={() => CheckoutModalVar(true)}
                 >
                   {`Sweep & Flip`}
                 </Button>
@@ -304,27 +315,33 @@ const FormCard = ({ chainId }: FormCardProps) => {
       </Card>
 
       {modalCollection && <CollectionSelectModal chainId={chainId} onSelect={handleSelectCollection} />}
-      {sweepModal && <SweepModal { ...{
-        sweepAmount: Number(sweepAmount),
-        maxInput,
-        collection: collectionData,
-        tokens: sweepTokens,
-        totalAmount: sweepTotalEth,
-        onPlus: handleAddOneSlider,
-        onMinus: handleRemoveOneSlider,
-        onChangeAmount: handleSweepChangeAmount
-      }} />}
-      {modalCheckout && <CheckoutModal
-        collection={collectionData}
-        tokens={sweepTokens?.slice(0, Number(sweepAmount))}
-        totalPrice={sweepTotalEth}
-        userBalanceEth={formatBN(balance?.value || 0, 4, balance?.decimals || 2).toString()}
-        userBalanceNft={0}
-        targetProfit={profit}
-        expectedProfit={expectedProfit}
-        marketplaceFee={OPENSEA_FEE}
-        onCallback={resetFormData}
-      />}
+      {sweepModal && (
+        <SweepModal
+          {...{
+            sweepAmount: Number(sweepAmount),
+            maxInput,
+            collection: collectionData,
+            tokens: sweepTokens,
+            totalAmount: sweepTotalEth,
+            onPlus: handleAddOneSlider,
+            onMinus: handleRemoveOneSlider,
+            onChangeAmount: handleSweepChangeAmount
+          }}
+        />
+      )}
+      {modalCheckout && (
+        <CheckoutModal
+          collection={collectionData}
+          tokens={sweepTokens?.slice(0, Number(sweepAmount))}
+          totalPrice={sweepTotalEth}
+          userBalanceEth={formatBN(balance?.value || 0, 4, balance?.decimals || 2).toString()}
+          userBalanceNft={0}
+          targetProfit={profit}
+          expectedProfit={expectedProfit}
+          marketplaceFee={OPENSEA_FEE}
+          onCallback={resetFormData}
+        />
+      )}
     </>
   )
 }
@@ -340,13 +357,14 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
   Box: styled.div`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    border: 1px solid #D9D9D9;
+    border: 1px solid var(--gray-5);
     border-radius: 12px;
     padding: 8px;
     margin-bottom: 10px;
     gap: 4px;
-    grid-template-areas: "left right"
-                         "content content";
+    grid-template-areas:
+      'left right'
+      'content content';
   `,
   Top: styled.div`
     margin-top: -36px;
@@ -355,7 +373,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     label {
       font-size: 16px;
       font-weight: 600;
-      color: #262626;
+      color: var(--gray-10);
     }
   `,
   Content: styled.div`
@@ -371,7 +389,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
   InputWithoutBorder: styled(Input)`
     font-size: 1.5rem;
     border: none;
-    &::focus {
+    &:focus {
       border-color: none;
       outline: none;
     }
@@ -380,7 +398,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     .ant-checkbox-wrapper {
       font-size: 14px;
       font-weight: 400;
-      color: #434343;
+      color: var(--gray-9);
       line-height: 3;
     }
   `,
@@ -388,7 +406,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     text-align: center;
     padding: 0;
     .ant-alert-message {
-      color: rgb(82, 196, 26);
+      color: var(--green-6);
     }
   `
 }

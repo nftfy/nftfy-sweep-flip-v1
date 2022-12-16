@@ -73,6 +73,8 @@ export function CheckoutModal({
   const rss = collection?.royalties?.bps ? collection.royalties?.bps / 10000 : 0
   const buyRoyality = totalPrice * rss
 
+  const nameCollectionSize = collection?.name?.length || 0
+
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
 
   return (
@@ -98,7 +100,7 @@ export function CheckoutModal({
       open={CheckoutModal}
       onOk={handleOk}
       onCancel={handleCancel}
-      maskClosable = {false}
+      maskClosable={false}
     >
       <>
         <CheckoutContainer>
@@ -108,41 +110,27 @@ export function CheckoutModal({
                 <strong>Collection</strong>
               </Text>
               <Image width={200} preview={false} style={{ borderRadius: '12px' }} src={collection?.image} />
-              <Title level={5}>{collection?.name}</Title>
+              <Title level={5}>{nameCollectionSize > 22 ? `${collection?.name?.slice(0, 22)}...` : collection?.name}</Title>
               <Text type='secondary'>NFTFY Top Collections</Text>
               <Card style={{ width: 240 }}>
-                <CardContent>
-                  <Row>
-                    <Col span={19}>
-                      <Text type='secondary'>Floor price</Text>
-                    </Col>
-                    <Col span={3} style={{ display: 'flex', justifyContent: 'center' }}>
-                      <Text>{collection?.floorAsk?.price?.amount?.native}</Text>
-                    </Col>
-                    <Col span={1}>
+                <CardContainer>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <Text type='secondary'>Floor price</Text>
+                    <Text type='secondary'>Best offer</Text>
+                    <Text type='secondary'>RSS</Text>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
+                    <Text>{collection?.floorAsk?.price?.amount?.native?.toFixed(3)}</Text>
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col span={19}>
-                      <Text type='secondary'>Best offer</Text>
-                    </Col>
-                    <Col span={3} style={{ display: 'flex', justifyContent: 'center' }}>
                       <Text style={{ textAlign: 'center', width: '100%' }}>{collection?.floorAsk?.price?.amount?.native}</Text>
-                    </Col>
-                    <Col span={1}>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col span={20}>
-                      <Text type='secondary'>RSS</Text>
-                    </Col>
-                    <Col span={4} style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       {rss}%
-                    </Col>
-                  </Row>
-                </CardContent>
+                    </div>
+                  </div>
+                </CardContainer>
               </Card>
             </TokenContainer>
           </Col>
@@ -189,7 +177,7 @@ export function CheckoutModal({
                 <Row>
                   <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontWeight: 600 }}>
                     <Text style={{ fontSize: '12px' }} type='secondary'>
-                      Balance: {userBalanceNft} {nftSymbol}
+                      Balance: {userBalanceNft} {nftSymbol.length > 22 ? `${nftSymbol.slice(0, 22)}...` : nftSymbol}
                     </Text>
                     <Text style={{ fontSize: '12px' }} type='secondary'>
                       {usdConversion && formatDollar(Number(userBalanceEth) * usdConversion)}
@@ -217,7 +205,7 @@ export function CheckoutModal({
                   </Col>
                   <Col style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                     <Text>{targetProfit}%</Text>
-                    <Text>{expectedProfit} ETH</Text>
+                    <Text>{expectedProfit?.toFixed(3)} ETH</Text>
                   </Col>
                 </CardContainer>
               </div>
@@ -226,11 +214,11 @@ export function CheckoutModal({
                   <Text type='secondary'>You will receive</Text>
                   <Text type='secondary'>Each NFT will be relisted at</Text>
                   <Text type='secondary'>Collection royalty</Text>
-                  <Text type='secondary'>{collection?.name} fee</Text>
+                  <Text type='secondary'>{nameCollectionSize > 22 ? `${collection?.name?.slice(0, 22)}...` : collection?.name} fee</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
-                  <Text>{expectedProfit} ETH</Text>
-                  <Text>{salePrice} ETH</Text>
+                  <Text>{expectedProfit?.toFixed(3)} ETH</Text>
+                  <Text>{salePrice.toFixed(3)} ETH</Text>
                   <Text>{buyRoyality} ETH</Text>
                   <Text>{marketplaceFee} ETH</Text>
                 </div>
@@ -243,7 +231,7 @@ export function CheckoutModal({
   )
 }
 
-const { FooterContainer, TokenContainer, CardContent, CardContainer, CheckoutContainer, ArrowContainer } = {
+const { FooterContainer, TokenContainer, CardContainer, CheckoutContainer, ArrowContainer } = {
   FooterContainer: styled.div`
     width: 100%;
     display: flex;
@@ -253,12 +241,6 @@ const { FooterContainer, TokenContainer, CardContent, CardContainer, CheckoutCon
     display: flex;
     flex-direction: column;
     gap: 10px;
-  `,
-
-  CardContent: styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
   `,
   CardContainer: styled.div`
     width: 100%;
