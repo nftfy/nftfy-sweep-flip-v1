@@ -37,7 +37,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const { value: sweepAmount, setValue: setSweepAmount, reset: resetSweepAmount } = useHandleeInputs()
 
   const { data: balance } = useBalance({ addressOrName: account.address })
-  const [profit, setProfit] = useState<number>(40)
+  const [profit, setProfit] = useState<number>(0)
   const [expectedProfit, setExpectedProfit] = useState<number>(0)
 
   const [collectionData, setCollectionData] = useState<ReservoirCollection | undefined>(undefined)
@@ -197,7 +197,13 @@ const FormCard = ({ chainId }: FormCardProps) => {
                     {isSufficientAmount && <Text type='danger'>Is not a suffcient Amount</Text>}
                   </Content>
                   <Left>
-                    <InputWithoutBorder bordered={false} type='number' value={ethAmount} onChange={handleEthAmount} />
+                    <InputWithoutBorder
+                      style={{ color: 'var(--gray-7)', padding: '0' }}
+                      bordered={false}
+                      type='number'
+                      value={ethAmount}
+                      onChange={handleEthAmount}
+                    />
                   </Left>
                   <Right>
                     <Button
@@ -207,7 +213,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                           preview={false}
                           width={24}
                           height={24}
-                          style={{ paddingRight: 2, paddingBottom: 2 }}
+                          style={{ paddingRight: 6, paddingBottom: 2 }}
                         />
                       }
                       size='large'
@@ -248,7 +254,12 @@ const FormCard = ({ chainId }: FormCardProps) => {
                       )}
                     </Content>
                     <Left>
-                      <InputWithoutBorder placeholder='0' bordered={false} value={sweepAmount} />
+                      <InputWithoutBorder
+                        style={{ color: 'var(--gray-7)', padding: '0', marginBottom: '8px' }}
+                        placeholder='0'
+                        bordered={false}
+                        value={sweepAmount}
+                      />
                       <Text type='secondary'>{usdConversion && formatDollar(Number(sweepTotalEth) * usdConversion)}</Text>
                     </Left>
                     <Right>
@@ -281,21 +292,22 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   </Box>
                 </FormItem>
               </Top>
-
               <FormItem label='Set target profit'>
                 <Input
                   placeholder='0%'
-                  style={{ textAlign: 'center' }}
-                  value={profit}
+                  style={{ textAlign: 'center', color: 'var(--gray-7)' }}
+                  value={`${profit}%`}
                   onChange={text => {
                     setProfit(Number(text.target.value.trim() || 0))
                     setExpectedProfit(calculateProfit(sweepTotalEth, Number(text.target.value.trim())))
                   }}
                 />
               </FormItem>
-              <FormItem>
-                {(sweepTotalEth && <ProfitAlert type='success' message={`Expected profit: ${expectedProfit?.toFixed(8)}`} />) || ''}
-              </FormItem>
+              {!!sweepTotalEth && (
+                <FormItem>
+                  <ProfitAlert type='success' message={`Expected profit: ${expectedProfit?.toFixed(8)}`} />
+                </FormItem>
+              )}
               <FormItem>
                 <Space>
                   <CheckGroup options={plainOptions} value={plainOptions} />
