@@ -6,7 +6,7 @@ interface InputProps {
   value: string | number;
   valid: boolean;
   reset: Function;
-  onChange: ChangeEventHandler;
+  onChange: (value: string) => void;
   setValue: Dispatch<SetStateAction<string | number>>;
 }
 
