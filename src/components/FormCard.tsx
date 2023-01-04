@@ -48,13 +48,13 @@ const FormCard = ({ chainId }: FormCardProps) => {
 
   const plainOptions = ['Skip pending', 'Skip suspisious']
 
-  const addSweepAmountTotal = (amount: string) => {
+  const addSweepAmountTotal = (amount: number) => {
     if (!sweepTokens?.length) return
 
     let total = 0
     let totalItems = 0
     for (const token of sweepTokens || []) {
-      if (Number(amount) > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > Number(amount)) break
+      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) break
 
       total += Number(token.market?.floorAsk?.price?.amount?.native)
       totalItems += 1
@@ -91,10 +91,10 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const handleEthAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
 
-    const amount = e.target.value.trim()
+    const amount = e.target.value.replace(/[^0-9.]/g, '').trim()
     setEthAmount(amount)
 
-    addSweepAmountTotal(amount)
+    addSweepAmountTotal(Number(amount))
   }
   const handleSweepChangeAmount = (value: number) => {
     setSweepAmount(value)
@@ -202,7 +202,6 @@ const FormCard = ({ chainId }: FormCardProps) => {
                     <InputWithoutBorder
                       style={{ color: 'var(--gray-7)', padding: '0' }}
                       bordered={false}
-                      type='number'
                       value={ethAmount}
                       onChange={handleEthAmount}
                     />
