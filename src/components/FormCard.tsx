@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert, Tooltip } from 'antd'
 import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
@@ -87,12 +87,14 @@ const FormCard = ({ chainId }: FormCardProps) => {
   }
 
   const handleSelectCollection = (data: ReservoirCollection | undefined) => setCollectionData(data)
-  const handleEthAmount = e => {
+
+  const handleEthAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
-    const amount = Number(e.target.value.trim())
+
+    const amount = e.target.value.replace(/[^0-9.]/g, '').trim()
     setEthAmount(amount)
 
-    addSweepAmountTotal(amount)
+    addSweepAmountTotal(Number(amount))
   }
   const handleSweepChangeAmount = (value: number) => {
     setSweepAmount(value)
@@ -200,7 +202,6 @@ const FormCard = ({ chainId }: FormCardProps) => {
                     <InputWithoutBorder
                       style={{ color: 'var(--gray-7)', padding: '0' }}
                       bordered={false}
-                      type='number'
                       value={ethAmount}
                       onChange={handleEthAmount}
                     />
@@ -234,7 +235,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                         <Col style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                           {maxInput >= 1 && (
                             <Link onClick={() => SweepModalVar(true)} style={{ margin: '0 auto' }}>
-                              See NFT
+                              See NFTs
                             </Link>
                           )}
                           {maxInput === 0 ? (
@@ -266,13 +267,10 @@ const FormCard = ({ chainId }: FormCardProps) => {
                       {collectionData ? (
                         <Button size='large' onClick={() => CollectionSelectModalVar(true)}>
                           <Space>
-                            <CollectionImage
+                            <Image
+                              preview={false}
                               src={collectionData?.image}
-                              diameter={24}
-                              address={collectionData?.id}
-                              loading={false}
-                              borderSize='1px'
-                              borderColor='var(--gray-7)'
+                              style={{ borderColor: 'var(--gray-7)', borderWidth: '1px', width: 24, height: 24, borderRadius: 12 }}
                             />
                             &nbsp;
                             <div>
@@ -305,7 +303,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
               </FormItem>
               {!!sweepTotalEth && (
                 <FormItem>
-                  <ProfitAlert type='success' message={`Expected profit: ${expectedProfit?.toFixed(8)}`} />
+                  <ProfitAlert type='success' message={`Expected profit: ${expectedProfit?.toFixed(8)} ETH`} />
                 </FormItem>
               )}
               <FormItem>
