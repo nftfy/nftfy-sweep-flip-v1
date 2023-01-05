@@ -1,8 +1,6 @@
-import { Button, Card, Col, Image, Modal, Row, Slider, Typography } from 'antd'
-import { Tokens, useTokens } from 'src/hooks/useTokens'
-import { useEffect, useState } from 'react'
+import { Button, Card, Col, Image, Modal, Row, Typography } from 'antd'
+import { Tokens } from 'src/hooks/useTokens'
 import SliderTokens from './shared/SliderTokens'
-import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi'
 import styled from 'styled-components'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { formatDollar } from 'lib/numbers'
@@ -71,7 +69,7 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
           <Col span={3}>
             <CardContainer>
               <div style={{ display: 'flex', gap: '8px' }}>
-                {tokens?.length} <Text type='secondary'>Items</Text>
+                {sweepAmount} <Text type='secondary'>Items</Text>
               </div>
             </CardContainer>
           </Col>
@@ -103,7 +101,10 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
           </Col>
           <Col span={3} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <strong style={{ fontSize: '1rem' }}>{totalAmount?.toFixed(3)}</strong>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <Image style={{ marginTop: '-2px' }} src='/icons/eth.svg' preview={false} />
+                <strong style={{ fontSize: '1rem' }}>{totalAmount?.toFixed(3)}</strong>
+              </div>
               {usdConversion && totalAmount && <Text>{formatDollar(usdConversion * totalAmount)}</Text>}
             </div>
           </Col>
@@ -113,7 +114,7 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
   )
 }
 
-const { HeaderContainer, FooterContainer, SliderContainer, PlusIcon, MinusIcon, CardContainer, CardNftContainer, ImgTextContainer } = {
+const { HeaderContainer, FooterContainer, CardContainer, CardNftContainer, ImgTextContainer } = {
   HeaderContainer: styled.div`
     display: flex;
     align-items: center;
@@ -124,34 +125,7 @@ const { HeaderContainer, FooterContainer, SliderContainer, PlusIcon, MinusIcon, 
     display: flex;
     align-items: center;
   `,
-  SliderContainer: styled.div`
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: 5px;
-  `,
-  PlusIcon: styled(FiPlusCircle)`
-    cursor: pointer;
-    color: var(--primary-color);
-    width: 1rem;
 
-    :hover {
-      opacity: 70%;
-
-      transition: opacity 0.2s;
-    }
-  `,
-  MinusIcon: styled(FiMinusCircle)`
-    cursor: pointer;
-    color: var(--primary-color);
-    width: 1rem;
-
-    :hover {
-      opacity: 70%;
-
-      transition: opacity 0.2s;
-    }
-  `,
   CardContainer: styled(Card)`
     width: 90px;
     .ant-card-body {
