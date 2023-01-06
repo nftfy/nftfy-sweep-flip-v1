@@ -46,6 +46,9 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const [maxInput, setMaxInput] = useState<number>(1)
   const [isSufficientAmount, setIsSufficientAmount] = useState<boolean>(false)
 
+  const insuficientBalance =
+    formatBN(balance?.value || 0, 4, balance?.decimals || 2) < Number(ethAmount) || ethAmount === '0' || ethAmount === '0.'
+
   const plainOptions = ['Skip pending', 'Skip suspisious']
 
   const addSweepAmountTotal = (amount: number) => {
@@ -194,7 +197,14 @@ const FormCard = ({ chainId }: FormCardProps) => {
                           )}
                         </Text>
                       </div>
-                      <Text type='secondary'>{`Balance: ${formatBN(balance?.value || 0, 4, balance?.decimals || 2)}`}</Text>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Text type='secondary'>{`Balance: ${formatBN(balance?.value || 0, 4, balance?.decimals || 2)}`}</Text>
+                        {insuficientBalance && (
+                          <Text type='danger' style={{ fontSize: '12px' }}>
+                            Insufficient balance
+                          </Text>
+                        )}
+                      </div>
                     </div>
                     {isSufficientAmount && <Text type='danger'>Is not a suffcient Amount</Text>}
                   </Content>
@@ -313,7 +323,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                 <Button
                   type='primary'
                   block
-                  disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount}
+                  disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount || insuficientBalance}
                   onClick={() => CheckoutModalVar(true)}
                 >
                   {`Sweep & Flip`}
