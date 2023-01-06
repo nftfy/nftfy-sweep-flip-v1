@@ -49,8 +49,6 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const insuficientBalance =
     formatBN(balance?.value || 0, 4, balance?.decimals || 2) < Number(ethAmount) || ethAmount === '0' || ethAmount === '0.'
 
-  console.log(ethAmount, Number(balance?.value))
-
   const plainOptions = ['Skip pending', 'Skip suspisious']
 
   const addSweepAmountTotal = (amount: number) => {
