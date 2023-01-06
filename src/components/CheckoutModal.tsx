@@ -120,15 +120,15 @@ export function CheckoutModal({
                     <Text type='secondary'>RSS</Text>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
-                    <Text>{collection?.floorAsk?.price?.amount?.native?.toFixed(3)}</Text>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
+                      <Text>{collection?.floorAsk?.price?.amount?.native?.toFixed(3)}</Text>
+                    </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
                       <Text style={{ textAlign: 'center', width: '100%' }}>{collection?.floorAsk?.price?.amount?.native}</Text>
                     </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                      {rss}%
-                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>{rss}%</div>
                   </div>
                 </CardContainer>
               </Card>
@@ -158,7 +158,7 @@ export function CheckoutModal({
                     </Col>
                   </Row>
                   <ArrowContainer>
-                    <Button style={{ position: 'absolute', transform: 'translate(390%,-5%)' }} size='large' icon={<ArrowDownOutlined />} />
+                    <Button style={{ position: 'absolute', transform: 'translate(498%,-2%)' }} size='middle' icon={<ArrowDownOutlined />} />
                   </ArrowContainer>
                 </>
               }
@@ -170,7 +170,7 @@ export function CheckoutModal({
                   <Col>
                     <div style={{ display: 'flex', gap: '5px', fontWeight: 600 }}>
                       <Image style={{ marginTop: '-3px', width: '16px' }} src={collection?.image} preview={false} />
-                      {tokens?.length}
+                      {tokens?.length} {nftSymbol}
                     </div>
                   </Col>
                 </Row>
@@ -251,12 +251,12 @@ const { FooterContainer, TokenContainer, CardContainer, CheckoutContainer, Arrow
   CheckoutContainer: styled.div`
     display: flex;
 
-    @media (max-width: 638px) {
+    @media (max-width: 640px) {
       flex-direction: column;
     }
   `,
   ArrowContainer: styled.div`
-    @media (max-width: 638px) {
+    @media (max-width: 750px) {
       display: none;
     }
   `
