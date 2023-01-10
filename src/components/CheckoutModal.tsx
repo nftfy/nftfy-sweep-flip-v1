@@ -122,11 +122,11 @@ export function CheckoutModal({
                   <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                      <Text>{collection?.floorAsk?.price?.amount?.native?.toFixed(3)}</Text>
+                      <Text>{collection?.floorAsk?.price?.amount?.native?.toFixed(4) || '0.0000'} ETH</Text>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                      <Text style={{ textAlign: 'center', width: '100%' }}>{collection?.floorAsk?.price?.amount?.native}</Text>
+                      <Text style={{ textAlign: 'center', width: '100%' }}>{collection?.floorAsk?.price?.amount?.native?.toFixed(4) || '0.0000'} ETH</Text>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>{rss}%</div>
                   </div>
@@ -135,7 +135,7 @@ export function CheckoutModal({
             </TokenContainer>
           </Col>
           <Col style={{ width: '100%' }}>
-            <Card
+            <Card size='small'
               title={
                 <>
                   <Row style={{ justifyContent: 'space-between' }}>
@@ -187,40 +187,39 @@ export function CheckoutModal({
               </>
             </Card>
 
-            <Card style={{ width: '100%' }}>
+            <Card size='small' style={{ width: '100%' }}>
               <div
                 style={{
-                  marginLeft: '-7px',
                   marginBottom: '8px',
                   backgroundColor: 'var(--green-1)',
                   border: '1px solid var(--green-6)',
                   borderRadius: '12px',
-                  padding: '5px 8px'
+                  padding: '5px 12px'
                 }}
               >
                 <CardContainer>
-                  <Col style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <Col style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <Text type='secondary'>Target Profit</Text>
                     <Text type='secondary'>Expected Profit</Text>
                   </Col>
                   <Col style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                     <Text>{targetProfit}%</Text>
-                    <Text>{expectedProfit?.toFixed(3)} ETH</Text>
+                    <Text>{expectedProfit?.toFixed(4) || '0.0000'} ETH</Text>
                   </Col>
                 </CardContainer>
               </div>
               <CardContainer>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 12px' }}>
                   <Text type='secondary'>You will receive</Text>
                   <Text type='secondary'>Each NFT will be relisted at</Text>
                   <Text type='secondary'>Collection royalty</Text>
                   <Text type='secondary'>{nameCollectionSize > 22 ? `${collection?.name?.slice(0, 22)}...` : collection?.name} fee</Text>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
-                  <Text>{expectedProfit?.toFixed(3)} ETH</Text>
-                  <Text>{salePrice.toFixed(3)} ETH</Text>
-                  <Text>{buyRoyality} ETH</Text>
-                  <Text>{marketplaceFee} ETH</Text>
+                <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '10px', padding: '0 12px' }}>
+                  <Text>{expectedProfit?.toFixed(4)} ETH</Text>
+                  <Text>{salePrice.toFixed(4)} ETH</Text>
+                  <Text>{buyRoyality.toFixed(4)} ETH</Text>
+                  <Text>{marketplaceFee?.toFixed(4) || '0.0000'} ETH</Text>
                 </div>
               </CardContainer>
             </Card>
