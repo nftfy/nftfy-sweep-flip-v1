@@ -13,11 +13,6 @@ interface SettingsProps {
 
 const SettingsButton = ({ settingsType }: SettingsProps) => {
     const { Text } = Typography
-    const sweepRulesSettings = useReactiveVar(sweepRulesSettingsVar)
-    const listingMarketplaces = useReactiveVar(listingMarketplacesVar)
-
-    console.log('listingMarketplaces', listingMarketplaces)
-    console.log('sweepRulesSettings', sweepRulesSettings)
 
     const sweepRules = [
         { label: 'Skip Pending', value: 'skipPeding' },
@@ -41,7 +36,7 @@ const SettingsButton = ({ settingsType }: SettingsProps) => {
             {settingsType === 'sweepFlip' && (
                 <div>
                     <Text strong>Listing Marketplaces</Text>
-                    <Checkbox.Group options={listingMarketplacesOptions} defaultValue={listingMarketplaces} onChange={(checkedValues) =>  listingMarketplacesVar(checkedValues as string[])} />
+                    <Checkbox.Group options={listingMarketplacesOptions} defaultValue={['opensea']} onChange={(checkedValues) =>  listingMarketplacesVar(checkedValues as string[])} />
                 </div>
               )
             }
