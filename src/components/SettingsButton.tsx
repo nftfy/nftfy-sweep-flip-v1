@@ -18,9 +18,8 @@ const SettingsButton = ({ settingsType }: SettingsProps) => {
         { label: 'Skip Pending', value: 'skipPeding' },
         { label: 'Skip Suspicious', value: 'skipSuspicious' },
       ];
-
     
-     const listingMarketplacesOptions = [
+     const listingMarketplaces = [
         { label: 'Open Sea', value: 'opensea' },
         { label: 'X2Y2', value: 'x2y2' },
         { label: 'Blur', value: 'blur' },
@@ -36,7 +35,7 @@ const SettingsButton = ({ settingsType }: SettingsProps) => {
             {settingsType === 'sweepFlip' && (
                 <div>
                     <Text strong>Listing Marketplaces</Text>
-                    <Checkbox.Group options={listingMarketplacesOptions} defaultValue={['opensea']} onChange={(checkedValues) =>  listingMarketplacesVar(checkedValues as string[])} />
+                    <Checkbox.Group options={listingMarketplaces} defaultValue={['opensea']} onChange={(checkedValues) =>  listingMarketplacesVar(checkedValues as string[])} />
                 </div>
               )
             }
