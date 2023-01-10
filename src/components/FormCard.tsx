@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert, Tooltip } from 'antd'
+import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert, Tooltip, InputNumber } from 'antd'
 import styled from 'styled-components'
 import { CollectionImage } from '@components/shared/CollectionImage'
 import { ArrowDownOutlined, QuestionCircleOutlined } from '@ant-design/icons'
@@ -37,8 +37,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const { value: sweepAmount, setValue: setSweepAmount, reset: resetSweepAmount } = useHandleeInputs()
 
   const { data: balance } = useBalance({ addressOrName: account.address })
-  const [profit, setProfit] = useState<number>(0)
-  const [expectedProfit, setExpectedProfit] = useState<number>(0)
+  const [profit, setProfit] = useState<number | undefined>()
+  const [expectedProfit, setExpectedProfit] = useState<number | undefined>()
 
   const [collectionData, setCollectionData] = useState<ReservoirCollection | undefined>(undefined)
   const [sweepTotalEth, setSweepTotalEth] = useState<number>(0)
@@ -301,13 +301,15 @@ const FormCard = ({ chainId }: FormCardProps) => {
                 </FormItem>
               </Top>
               <FormItem label='Set target profit'>
-                <Input
+                <TextNumber
                   placeholder='0%'
-                  style={{ textAlign: 'center', color: 'var(--gray-7)' }}
-                  value={`${profit}%`}
-                  onChange={text => {
-                    setProfit(Number(text.target.value.trim() || 0))
-                    setExpectedProfit(calculateProfit(sweepTotalEth, Number(text.target.value.trim())))
+                  controls={false}
+                  value={profit}
+                  formatter={(value) => `${value}%`}
+                  parser={(value) => value!.replace('%', '')}
+                  onChange={value => {
+                    setProfit(Number(value))
+                    setExpectedProfit(calculateProfit(sweepTotalEth, Number(value)))
                   }}
                 />
               </FormItem>
@@ -366,7 +368,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
   )
 }
 
-const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem, InputWithoutBorder } = {
+const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem, InputWithoutBorder, TextNumber } = {
   Space: styled.div`
     display: flex;
     flex-direction: row;
@@ -412,6 +414,13 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     &:focus {
       border-color: none;
       outline: none;
+    }
+  `,
+  TextNumber: styled(InputNumber)`
+    color: var(--gray-7);
+    width: 100%;
+    .ant-input-number-input {
+      text-align: center;
     }
   `,
   CheckGroup: styled(CheckboxGroup)`
