@@ -33,8 +33,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const modalCheckout = useReactiveVar(CheckoutModalVar)
   const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
-  const { value: ethAmount, setValue: setEthAmount, onChange: onChangeEthAmount, reset: resetEthAmount } = useHandleeInputs()
-  const { value: sweepAmount, setValue: setSweepAmount, reset: resetSweepAmount } = useHandleeInputs()
+  const { value: ethAmount, setValue: setEthAmount } = useHandleeInputs()
+  const { value: sweepAmount, setValue: setSweepAmount } = useHandleeInputs()
 
   const { data: balance } = useBalance({ addressOrName: account.address })
   const [profit, setProfit] = useState<number | undefined>()
@@ -44,7 +44,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
   const [sweepTotalEth, setSweepTotalEth] = useState<number>(0)
   const [sweepTokens, setSweepTokens] = useState<Tokens>([])
   const [maxInput, setMaxInput] = useState<number>(1)
-  const [isSufficientAmount, setIsSufficientAmount] = useState<boolean>(false)
+  const [insufficientAmount, setInsufficientAmount] = useState<boolean>(false)
 
   const insuficientBalance =
     formatBN(balance?.value || 0, 4, balance?.decimals || 2) < Number(ethAmount) || ethAmount === '0' || ethAmount === '0.'
@@ -64,7 +64,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     }
 
     setSweepAmount(totalItems)
-    setIsSufficientAmount(Number(balance?.value) < total)
+    setInsufficientAmount(Number(balance?.value) < total)
     setSweepTotalEth(total)
     addExpectedProfit(total)
   }
@@ -78,7 +78,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     }
 
     setEthAmount(total)
-    setIsSufficientAmount(Number(balance?.value) < total)
+    setInsufficientAmount(Number(balance?.value) < total)
     setSweepTotalEth(total)
     addExpectedProfit(total)
   }
@@ -136,7 +136,18 @@ const FormCard = ({ chainId }: FormCardProps) => {
   }, [collectionData])
 
   useEffect(() => {
-    if (account.isDisconnected || !collectionData || !tokens) return
+    if (!ethAmount || sweepAmount) {
+      return
+    }
+
+    setSweepAmount(0)
+  }, [ethAmount, sweepAmount])
+
+  useEffect(() => {
+    if (account.isDisconnected || !collectionData || !tokens) {
+      return
+    }
+
     const availableTokens = tokens?.filter(
       token =>
         token !== undefined &&
@@ -188,7 +199,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   <Content>
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                       <div>
-                        <Text type='secondary'>{(usdConversion && formatDollar(Number(ethAmount) * usdConversion)) || 0}</Text>
+                        <Text type='secondary'>{(usdConversion && formatDollar(Number(ethAmount || 0) * usdConversion)) || 0}</Text>
                         <Text type='secondary'>
                           {ethAmount !== sweepTotalEth && sweepTotalEth !== 0 && (
                             <Button type='link' onClick={() => setEthAmount(sweepTotalEth)}>
@@ -206,11 +217,12 @@ const FormCard = ({ chainId }: FormCardProps) => {
                         )}
                       </div>
                     </div>
-                    {isSufficientAmount && <Text type='danger'>Is not a suffcient Amount</Text>}
+                    {insufficientAmount && <Text type='danger'>Insufficient amount</Text>}
                   </Content>
                   <Left>
                     <InputWithoutBorder
-                      style={{ color: 'var(--gray-7)', padding: '0' }}
+                      placeholder={'0'}
+                      style={{ color: 'var(--gray-10)', padding: '0' }}
                       bordered={false}
                       value={ethAmount}
                       onChange={handleEthAmount}
@@ -266,7 +278,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                     </Content>
                     <Left>
                       <InputWithoutBorder
-                        style={{ color: 'var(--gray-7)', padding: '0', marginBottom: '8px' }}
+                        style={{ color: 'var(--gray-10)', padding: '0', marginBottom: '8px' }}
                         placeholder='0'
                         bordered={false}
                         value={sweepAmount}
@@ -305,7 +317,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   placeholder='0%'
                   controls={false}
                   value={profit}
-                  formatter={(value) => `${value}%`}
+                  formatter={(value) => value ? `${value}%` : ''}
                   parser={(value) => value!.replace('%', '')}
                   onChange={value => {
                     setProfit(Number(value))
@@ -313,9 +325,9 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   }}
                 />
               </FormItem>
-              {!!sweepTotalEth && (
+              {!!sweepTotalEth && !!profit && (
                 <FormItem>
-                  <ProfitAlert type='success' message={`Expected profit: ${expectedProfit?.toFixed(8)} ETH`} />
+                  <ProfitAlert type='success' message={`Expected profit: ${expectedProfit?.toFixed(4)} ETH`} />
                 </FormItem>
               )}
               <FormItem>
@@ -325,7 +337,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                 <Button
                   type='primary'
                   block
-                  disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount || insuficientBalance}
+                  disabled={!account.isConnected || !ethAmount || !sweepTotalEth || insufficientAmount || insuficientBalance}
                   onClick={() => CheckoutModalVar(true)}
                 >
                   {`Sweep & Flip`}
@@ -417,7 +429,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     }
   `,
   TextNumber: styled(InputNumber)`
-    color: var(--gray-7);
+    color: var(--gray-10);
     width: 100%;
     .ant-input-number-input {
       text-align: center;
