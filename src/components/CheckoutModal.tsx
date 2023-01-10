@@ -52,6 +52,7 @@ export function CheckoutModal({
 
   useEffect(() => {
     if (steps) {
+      // eslint-disable-next-line no-unsafe-optional-chaining
       const [finalStep] = steps?.slice(-1)
       const [step] = finalStep?.items || []
       if (!step) return
