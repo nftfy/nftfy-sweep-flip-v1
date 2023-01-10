@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert, Tooltip, InputNumber } from 'antd'
+import { Alert, Button, Card, Checkbox, Col, Form, Image, Input, InputNumber, Row, Tooltip, Typography } from 'antd'
 import styled from 'styled-components'
-import { CollectionImage } from '@components/shared/CollectionImage'
 import { ArrowDownOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount, useBalance } from 'wagmi'
-import { formatDollar, formatBN } from 'lib/numbers'
-import { calculateProfit, OPENSEA_FEE } from '../utils/index'
-import useHandleeInputs from '../hooks/useHandleInputs'
+import { formatBN, formatDollar } from 'lib/numbers'
 import useCoinConversion from 'src/hooks/useCoinConversion'
-import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
 import { useReactiveVar } from '@apollo/client'
 import { Tokens, useTokens } from 'src/hooks/useTokens'
+import Link from 'antd/lib/typography/Link'
+import { calculateProfit, OPENSEA_FEE } from '../utils/index'
+import useHandleeInputs from '../hooks/useHandleInputs'
+import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
 import { ReservoirCollection } from '../types/ReservoirCollection'
 import SliderTokens from './shared/SliderTokens'
 import { SweepModal, SweepModalVar } from './SweepModal'
-import Link from 'antd/lib/typography/Link'
-import { CheckoutModal, CheckoutModalVar } from './CheckoutModal'
+import { CheckoutModal, checkoutModalVar } from './CheckoutModal'
 
 const CheckboxGroup = Checkbox.Group
 
@@ -26,11 +25,11 @@ interface FormCardProps {
   chainId: number
 }
 
-const FormCard = ({ chainId }: FormCardProps) => {
+function FormCard({ chainId }: FormCardProps) {
   const account = useAccount()
   const usdConversion = useCoinConversion('usd', 'ETH')
   const modalCollection = useReactiveVar(CollectionSelectModalVar)
-  const modalCheckout = useReactiveVar(CheckoutModalVar)
+  const modalCheckout = useReactiveVar(checkoutModalVar)
   const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
   const { value: ethAmount, setValue: setEthAmount, onChange: onChangeEthAmount, reset: resetEthAmount } = useHandleeInputs()
@@ -305,8 +304,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   placeholder='0%'
                   controls={false}
                   value={profit}
-                  formatter={(value) => `${value}%`}
-                  parser={(value) => value!.replace('%', '')}
+                  formatter={value => `${value}%`}
+                  parser={value => value!.replace('%', '')}
                   onChange={value => {
                     setProfit(Number(value))
                     setExpectedProfit(calculateProfit(sweepTotalEth, Number(value)))
@@ -326,9 +325,9 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   type='primary'
                   block
                   disabled={!account.isConnected || !ethAmount || !sweepTotalEth || isSufficientAmount || insuficientBalance}
-                  onClick={() => CheckoutModalVar(true)}
+                  onClick={() => checkoutModalVar(true)}
                 >
-                  {`Sweep & Flip`}
+                  Sweep & Flip
                 </Button>
               </FormItem>
             </Form>

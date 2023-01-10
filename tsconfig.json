@@ -33,5 +33,5 @@
     "ui/index.js",
     "ui/buttons.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "components", "config", "styles", "public", "recoil"],
 }
