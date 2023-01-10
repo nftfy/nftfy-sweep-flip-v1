@@ -55,7 +55,10 @@ export function CheckoutModal({
       // eslint-disable-next-line no-unsafe-optional-chaining
       const [finalStep] = steps?.slice(-1)
       const [step] = finalStep?.items || []
-      if (!step) return
+
+      if (!step) {
+        return
+      }
 
       if (step.status === 'complete') {
         setToast({
@@ -70,7 +73,7 @@ export function CheckoutModal({
 
   const nftSymbol = collection?.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
   const salePrice = expectedProfit ? (totalPrice + expectedProfit) / (tokens?.length || 1) : 0
-  const rss = collection?.royalties?.bps ? collection.royalties?.bps / 10000 : 0
+  const rss = collection?.royalties?.bps ? (collection?.royalties?.bps || 0) / 10000 : 0
   const buyRoyality = totalPrice * rss
 
   const nameCollectionSize = collection?.name?.length || 0
