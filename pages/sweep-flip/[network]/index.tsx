@@ -1,13 +1,13 @@
 import { GetServerSideProps } from 'next'
 import Layout from 'components/Layout'
 import type { InferGetStaticPropsType, NextPage } from 'next'
-import { networkIdByName } from '../../../lib/networkService'
 import FormCard from '@components/FormCard'
 import Content from '@components/Content'
-import { CheckoutModal } from '@components/CheckoutModal'
+import { networkIdByName } from '../../../lib/networkService'
 
 type Props = InferGetStaticPropsType<typeof getServerSideProps>
 
+// eslint-disable-next-line react/function-component-definition
 const Home: NextPage<Props> = ({ chainId }) => (
   <Layout chainId={chainId}>
     <Content>
@@ -15,7 +15,6 @@ const Home: NextPage<Props> = ({ chainId }) => (
     </Content>
   </Layout>
 )
-
 
 export default Home
 

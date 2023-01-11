@@ -1,14 +1,8 @@
-import { useMediaQuery } from '@react-hookz/web'
-import { GetServerSideProps } from 'next'
-import { paths } from '@reservoir0x/reservoir-kit-client'
-import Layout from 'components/Layout'
-import SortTrendingCollections from 'components/SortTrendingCollections'
-import TrendingCollectionTable from 'components/TrendingCollectionTable'
-import setParams from 'lib/params'
-import type { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import type { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
+import { paths } from "@reservoir0x/reservoir-kit-client";
+import Layout from "components/Layout";
+import setParams from "lib/params";
+import Head from "next/head";
 
 // Environment variables
 // For more information about these variables
@@ -36,9 +30,7 @@ const metadata = {
   description: (description: string) => (
     <meta name="description" content={description} />
   ),
-  tagline: (tagline: string | undefined) => (
-    <>{tagline || 'Sweep and flip'}</>
-  ),
+  tagline: (tagline: string | undefined) => tagline || 'Sweep and flip',
   image: (image?: string) => {
     if (image) {
       return (
@@ -52,9 +44,8 @@ const metadata = {
   },
 }
 
-const Home: NextPage<Props> = ({ fallback }) => {
-  const router = useRouter()
-
+// eslint-disable-next-line react/function-component-definition
+const Home: NextPage<Props> = () => {
   const title = META_TITLE && metadata.title(META_TITLE)
   const description = META_DESCRIPTION && metadata.description(META_DESCRIPTION)
   const image = metadata.image(META_IMAGE)
@@ -63,6 +54,7 @@ const Home: NextPage<Props> = ({ fallback }) => {
   // Return error page if the API base url or the environment's
   // chain ID are missing
   if (!CHAIN_ID) {
+    // eslint-disable-next-line no-console
     console.debug({ CHAIN_ID })
     return <div>There was an error</div>
   }
@@ -70,6 +62,8 @@ const Home: NextPage<Props> = ({ fallback }) => {
   if (REDIRECT_HOMEPAGE && COLLECTION) return null
 
   return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     <Layout navbar={{}}>
       <Head>
         {title}
@@ -112,7 +106,7 @@ export const getStaticProps: GetStaticProps<{
   fallback: {
     collections: paths['/collections/v5']['get']['responses']['200']['schema']
   }
-}> = async (ctx) => {
+}> = async () => {
   const options: RequestInit | undefined = {}
 
   if (RESERVOIR_API_KEY) {
@@ -123,7 +117,7 @@ export const getStaticProps: GetStaticProps<{
 
   const url = new URL('/collections/v5', RESERVOIR_API_BASE)
 
-  let query: paths['/collections/v5']['get']['parameters']['query'] = {
+  const query: paths['/collections/v5']['get']['parameters']['query'] = {
     limit: 20,
     sortBy: '1DayVolume',
   }

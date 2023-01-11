@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Col, Checkbox, Form, Input, Image, Row, Typography, Alert, Tooltip, InputNumber } from 'antd'
+import { Alert, Button, Card, Checkbox, Col, Form, Image, Input, InputNumber, Row, Tooltip, Typography } from 'antd'
 import styled from 'styled-components'
-import { CollectionImage } from '@components/shared/CollectionImage'
 import { ArrowDownOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FaAngleDown } from 'react-icons/fa'
 import { useAccount, useBalance } from 'wagmi'
-import { formatDollar, formatBN } from 'lib/numbers'
-import { calculateProfit, OPENSEA_FEE } from '../utils/index'
-import useHandleeInputs from '../hooks/useHandleInputs'
+import { formatBN, formatDollar } from 'lib/numbers'
 import useCoinConversion from 'src/hooks/useCoinConversion'
-import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
 import { useReactiveVar } from '@apollo/client'
 import { Tokens, useTokens } from 'src/hooks/useTokens'
+import Link from 'antd/lib/typography/Link'
+import { calculateProfit, OPENSEA_FEE } from '../utils/index'
+import useHandleeInputs from '../hooks/useHandleInputs'
+import { CollectionSelectModal, collectionSelectModalVar } from './collection-select/CollectionSelectModal'
 import { ReservoirCollection } from '../types/ReservoirCollection'
 import SliderTokens from './shared/SliderTokens'
 import { SweepModal, SweepModalVar } from './SweepModal'
-import Link from 'antd/lib/typography/Link'
-import { CheckoutModal, CheckoutModalVar } from './CheckoutModal'
+import { CheckoutModal, checkoutModalVar } from './CheckoutModal'
 
 const CheckboxGroup = Checkbox.Group
 
@@ -26,11 +25,11 @@ interface FormCardProps {
   chainId: number
 }
 
-const FormCard = ({ chainId }: FormCardProps) => {
+function FormCard({ chainId }: FormCardProps) {
   const account = useAccount()
   const usdConversion = useCoinConversion('usd', 'ETH')
-  const modalCollection = useReactiveVar(CollectionSelectModalVar)
-  const modalCheckout = useReactiveVar(CheckoutModalVar)
+  const modalCollection = useReactiveVar(collectionSelectModalVar)
+  const modalCheckout = useReactiveVar(checkoutModalVar)
   const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
   const { value: ethAmount, setValue: setEthAmount } = useHandleeInputs()
@@ -56,12 +55,15 @@ const FormCard = ({ chainId }: FormCardProps) => {
 
     let total = 0
     let totalItems = 0
-    for (const token of sweepTokens || []) {
-      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) break
+
+    sweepTokens.forEach(token => {
+      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) {
+        return
+      }
 
       total += Number(token.market?.floorAsk?.price?.amount?.native)
       totalItems += 1
-    }
+    })
 
     setSweepAmount(totalItems)
     setInsufficientAmount(Number(balance?.value) < total)
@@ -73,9 +75,10 @@ const FormCard = ({ chainId }: FormCardProps) => {
     if (!sweepTokens?.length) return
 
     let total = 0
-    for (const token of sweepTokens?.slice(0, Number(sweepValue)) || []) {
+
+    sweepTokens?.slice(0, Number(sweepValue)).forEach(token => {
       total += Number(token.market?.floorAsk?.price?.amount?.native)
-    }
+    })
 
     setEthAmount(total)
     setInsufficientAmount(Number(balance?.value) < total)
@@ -133,7 +136,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     if (account.isDisconnected || !collectionData) return
 
     fetchTokens(collectionData.id)
-  }, [collectionData])
+  }, [account.isDisconnected, collectionData, fetchTokens])
 
   useEffect(() => {
     if (!ethAmount || sweepAmount) {
@@ -141,7 +144,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     }
 
     setSweepAmount(0)
-  }, [ethAmount, sweepAmount])
+  }, [ethAmount, setSweepAmount, sweepAmount])
 
   useEffect(() => {
     if (account.isDisconnected || !collectionData || !tokens) {
@@ -175,7 +178,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
     setSweepTotalEth(0)
     setMaxInput(limit)
     setSweepTokens(orderTokens)
-  }, [tokens, maxInput])
+  }, [tokens, maxInput, account.isDisconnected, collectionData, setSweepAmount, setEthAmount])
 
   return (
     <>
@@ -221,7 +224,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   </Content>
                   <Left>
                     <InputWithoutBorder
-                      placeholder={'0'}
+                      placeholder='0'
                       style={{ color: 'var(--gray-10)', padding: '0' }}
                       bordered={false}
                       value={ethAmount}
@@ -287,7 +290,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                     </Left>
                     <Right>
                       {collectionData ? (
-                        <Button size='large' onClick={() => CollectionSelectModalVar(true)}>
+                        <Button size='large' onClick={() => collectionSelectModalVar(true)}>
                           <Space>
                             <Image
                               preview={false}
@@ -302,7 +305,7 @@ const FormCard = ({ chainId }: FormCardProps) => {
                           </Space>
                         </Button>
                       ) : (
-                        <Button type='primary' size='large' onClick={() => CollectionSelectModalVar(true)}>
+                        <Button type='primary' size='large' onClick={() => collectionSelectModalVar(true)}>
                           <Space>
                             <div>Select collection</div> <FaAngleDown />
                           </Space>
@@ -317,8 +320,8 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   placeholder='0%'
                   controls={false}
                   value={profit}
-                  formatter={(value) => value ? `${value}%` : ''}
-                  parser={(value) => value!.replace('%', '')}
+                  formatter={value => (value ? `${value}%` : '')}
+                  parser={value => (value ? value.replace('%', '') : '')}
                   onChange={value => {
                     setProfit(Number(value))
                     setExpectedProfit(calculateProfit(sweepTotalEth, Number(value)))
@@ -338,9 +341,9 @@ const FormCard = ({ chainId }: FormCardProps) => {
                   type='primary'
                   block
                   disabled={!account.isConnected || !ethAmount || !sweepTotalEth || insufficientAmount || insuficientBalance}
-                  onClick={() => CheckoutModalVar(true)}
+                  onClick={() => checkoutModalVar(true)}
                 >
-                  {`Sweep & Flip`}
+                  Sweep & Flip
                 </Button>
               </FormItem>
             </Form>
@@ -424,7 +427,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     font-size: 1.5rem;
     border: none;
     &:focus {
-      border-color: none;
+      border-color: transparent;
       outline: none;
     }
   `,

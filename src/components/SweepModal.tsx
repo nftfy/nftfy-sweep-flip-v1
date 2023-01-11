@@ -1,11 +1,11 @@
 import { Button, Card, Col, Image, Modal, Row, Typography } from 'antd'
 import { Tokens } from 'src/hooks/useTokens'
-import SliderTokens from './shared/SliderTokens'
 import styled from 'styled-components'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { formatDollar } from 'lib/numbers'
-import { ReservoirCollection } from '../types/ReservoirCollection'
 import { makeVar, useReactiveVar } from '@apollo/client'
+import { ReservoirCollection } from '../types/ReservoirCollection'
+import SliderTokens from './shared/SliderTokens'
 
 const { Title, Text } = Typography
 const { Meta } = Card
@@ -31,7 +31,9 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
     SweepModalVar(false)
   }
 
-  if (!collection || !tokens) return <></>
+  if (!collection || !tokens) {
+    return null
+  }
 
   return (
     <Modal
@@ -74,7 +76,7 @@ export function SweepModal({ sweepAmount, maxInput, totalAmount, collection, tok
             </CardContainer>
           </Col>
         </Row>
-        <Row justify={{ ['xs']: 'center', ['lg']: 'start' }} style={{ marginTop: '2.375rem', gap: '1.1rem', width: '100%' }}>
+        <Row justify={{ xs: 'center', lg: 'start' }} style={{ marginTop: '2.375rem', gap: '1.1rem', width: '100%' }}>
           {tokens.slice(0, Number(sweepAmount))?.map(nft => (
             <CardNftContainer
               key={nft.token?.tokenId}
