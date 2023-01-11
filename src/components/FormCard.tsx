@@ -55,12 +55,15 @@ function FormCard({ chainId }: FormCardProps) {
 
     let total = 0
     let totalItems = 0
-    for (const token of sweepTokens || []) {
-      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) break
+
+    sweepTokens.forEach(token => {
+      if (amount > 0 && total + Number(token?.market?.floorAsk?.price?.amount?.native) > amount) {
+        return
+      }
 
       total += Number(token.market?.floorAsk?.price?.amount?.native)
       totalItems += 1
-    }
+    })
 
     setSweepAmount(totalItems)
     setInsufficientAmount(Number(balance?.value) < total)
@@ -72,9 +75,10 @@ function FormCard({ chainId }: FormCardProps) {
     if (!sweepTokens?.length) return
 
     let total = 0
-    for (const token of sweepTokens?.slice(0, Number(sweepValue)) || []) {
+
+    sweepTokens?.slice(0, Number(sweepValue)).forEach(token => {
       total += Number(token.market?.floorAsk?.price?.amount?.native)
-    }
+    })
 
     setEthAmount(total)
     setInsufficientAmount(Number(balance?.value) < total)
@@ -132,7 +136,7 @@ function FormCard({ chainId }: FormCardProps) {
     if (account.isDisconnected || !collectionData) return
 
     fetchTokens(collectionData.id)
-  }, [collectionData])
+  }, [account.isDisconnected, collectionData, fetchTokens])
 
   useEffect(() => {
     if (!ethAmount || sweepAmount) {
@@ -140,7 +144,7 @@ function FormCard({ chainId }: FormCardProps) {
     }
 
     setSweepAmount(0)
-  }, [ethAmount, sweepAmount])
+  }, [ethAmount, setSweepAmount, sweepAmount])
 
   useEffect(() => {
     if (account.isDisconnected || !collectionData || !tokens) {
@@ -174,7 +178,7 @@ function FormCard({ chainId }: FormCardProps) {
     setSweepTotalEth(0)
     setMaxInput(limit)
     setSweepTokens(orderTokens)
-  }, [tokens, maxInput])
+  }, [tokens, maxInput, account.isDisconnected, collectionData, setSweepAmount, setEthAmount])
 
   return (
     <>
@@ -220,7 +224,7 @@ function FormCard({ chainId }: FormCardProps) {
                   </Content>
                   <Left>
                     <InputWithoutBorder
-                      placeholder={'0'}
+                      placeholder='0'
                       style={{ color: 'var(--gray-10)', padding: '0' }}
                       bordered={false}
                       value={ethAmount}
@@ -316,8 +320,8 @@ function FormCard({ chainId }: FormCardProps) {
                   placeholder='0%'
                   controls={false}
                   value={profit}
-                  formatter={value => value ? `${value}%` : ''}
-                  parser={value => value!.replace('%', '')}
+                  formatter={value => (value ? `${value}%` : '')}
+                  parser={value => (value ? value.replace('%', '') : '')}
                   onChange={value => {
                     setProfit(Number(value))
                     setExpectedProfit(calculateProfit(sweepTotalEth, Number(value)))
@@ -423,7 +427,7 @@ const { Box, Content, CheckGroup, ProfitAlert, Top, Space, Left, Right, FormItem
     font-size: 1.5rem;
     border: none;
     &:focus {
-      border-color: none;
+      border-color: transparent;
       outline: none;
     }
   `,
