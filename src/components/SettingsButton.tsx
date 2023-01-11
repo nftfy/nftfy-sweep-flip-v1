@@ -12,7 +12,7 @@ function SettingsButton({ settingsType }: SettingsProps) {
   const { Text } = Typography
 
   const sweepRules = [
-    { label: 'Skip Pending', value: 'skipPeding' },
+    { label: 'Skip Pending', value: 'skipPending' },
     { label: 'Skip Suspicious', value: 'skipSuspicious' }
   ]
 
