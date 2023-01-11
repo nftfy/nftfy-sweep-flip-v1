@@ -1,12 +1,11 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 import { ReservoirCollection } from '@appTypes/ReservoirCollection'
 import { CollectionImage } from '@components/shared/CollectionImage'
-import { Button, Input, Modal, Space, Typography } from 'antd'
+import { Button, Input, Modal, Space, Spin, Typography } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useCollections } from 'src/hooks/useCollection'
 import { LoadingOutlined } from '@ant-design/icons'
-import { Spin } from 'antd'
 import { paths } from '@reservoir0x/reservoir-kit-client'
 
 type Collections = paths['/collections/v5']['get']['responses']['200']['schema']['collections']
@@ -16,12 +15,13 @@ export interface CollectionSelectModalProps {
   onSelect: (value: ReservoirCollection | undefined) => void
 }
 
-export const CollectionSelectModalVar = makeVar(false)
+export const collectionSelectModalVar = makeVar(false)
 
 export function CollectionSelectModal({ chainId, onSelect }: CollectionSelectModalProps) {
-  const CollectionSelectModal = useReactiveVar(CollectionSelectModalVar)
+  const collectionSelectModal = useReactiveVar(collectionSelectModalVar)
   const [mounted, setMounted] = useState<boolean>(false)
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedCollection, setSelectedCollection] = useState<ReservoirCollection | undefined>(undefined)
   const [commonCollections, setCommonCollections] = useState<Collections | undefined>(undefined)
 
@@ -32,14 +32,14 @@ export function CollectionSelectModal({ chainId, onSelect }: CollectionSelectMod
     fetchCollections(false).then(() => {
       setMounted(true)
     })
-  }, [])
+  }, [fetchCollections])
 
   useEffect(() => {
     setCommonCollections(collections?.slice(0, 5) || undefined)
-  }, [mounted])
+  }, [collections, mounted])
 
   const handleCancel = useCallback(() => {
-    CollectionSelectModalVar(false)
+    collectionSelectModalVar(false)
   }, [])
 
   const [id, setId] = useState<string | undefined>(undefined)
@@ -56,11 +56,11 @@ export function CollectionSelectModal({ chainId, onSelect }: CollectionSelectMod
 
   useEffect(() => {
     fetchCollections(false, id, name)
-  }, [id, name])
+  }, [fetchCollections, id, name])
 
   const handleSelect = async (item: ReservoirCollection) => {
     onSelect(item)
-    CollectionSelectModalVar(false)
+    collectionSelectModalVar(false)
   }
 
   const handleFetchMore = async () => {
@@ -76,7 +76,7 @@ export function CollectionSelectModal({ chainId, onSelect }: CollectionSelectMod
     <Modal
       title={<ModalTitle>Select a collection</ModalTitle>}
       footer=''
-      open={CollectionSelectModal}
+      open={collectionSelectModal}
       onCancel={handleCancel}
       afterClose={handleCancel}
       destroyOnClose
@@ -135,29 +135,28 @@ export function CollectionSelectModal({ chainId, onSelect }: CollectionSelectMod
                     loading={loading}
                     borderSize='1px'
                     borderColor='var(--gray-7)'
-                    selected={true}
+                    selected
                   />
                   <TextCollectionListSelected>{item?.name}</TextCollectionListSelected>
                 </CollectionListContainer>
               )
-            } else {
-              return (
-                <CollectionListContainer key={item.id} onClick={() => handleSelect(item)}>
-                  <CollectionImage
-                    src={item?.image}
-                    diameter={32}
-                    address={item?.id}
-                    loading={loading}
-                    borderSize='1px'
-                    borderColor='var(--gray-7)'
-                    selected={false}
-                  />
-                  <TextCollectionList>
-                    <Text>{item?.name}</Text>
-                  </TextCollectionList>
-                </CollectionListContainer>
-              )
             }
+            return (
+              <CollectionListContainer key={item.id} onClick={() => handleSelect(item)}>
+                <CollectionImage
+                  src={item?.image}
+                  diameter={32}
+                  address={item?.id}
+                  loading={loading}
+                  borderSize='1px'
+                  borderColor='var(--gray-7)'
+                  selected={false}
+                />
+                <TextCollectionList>
+                  <Text>{item?.name}</Text>
+                </TextCollectionList>
+              </CollectionListContainer>
+            )
           })}
         {loading && <Spin indicator={antIcon} />}
         {hasMore && !loading && (
@@ -188,6 +187,7 @@ const {
     display: flex;
     flex-direction: column;
     gap: 26px;
+
     > div {
       width: 100%;
       display: flex;

@@ -47,12 +47,9 @@ export function CollectionImage({
         setHasFailed(true)
         setIsLoading(false)
       }
-      return
-    }
-    else {
+    } else {
       setHasFailed(true)
       setIsLoading(false)
-      return
     }
   }, [src, isLoading, hasFailed])
 
@@ -87,17 +84,16 @@ const { ContainerImg, Img } = {
             border-radius: 12px;
           `};
   `,
-  Img: styled.img<{ selected: boolean, diameter: number }>`
+  Img: styled.img<{ selected: boolean; diameter: number }>`
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: 50% 50%;
     ${({ selected }) =>
-    selected
-      ? css`
-          filter: opacity(50%);
-        `
-      : css``
-    };
+      selected
+        ? css`
+            filter: opacity(50%);
+          `
+        : css``};
   `
 }

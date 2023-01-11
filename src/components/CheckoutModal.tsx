@@ -1,8 +1,7 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 import { ArrowDownOutlined, LoadingOutlined } from '@ant-design/icons'
 import { ReservoirCollection } from '@appTypes/ReservoirCollection'
-import { Button, Card, Col, Image, Modal, Row, Typography, Spin } from 'antd'
-import Link from 'next/link'
+import { Button, Card, Col, Image, Modal, Row, Spin, Typography } from 'antd'
 import { useBuyTokens } from 'src/hooks/useBuyTokens'
 import styled from 'styled-components'
 import { paths } from '@reservoir0x/reservoir-kit-client'
@@ -25,7 +24,7 @@ interface CheckoutModalProps {
   onCallback?: () => void
 }
 
-export const CheckoutModalVar = makeVar(false)
+export const checkoutModalVar = makeVar(false)
 
 export function CheckoutModal({
   collection,
@@ -38,7 +37,7 @@ export function CheckoutModal({
   marketplaceFee,
   onCallback
 }: CheckoutModalProps) {
-  const CheckoutModal = useReactiveVar(CheckoutModalVar)
+  const checkoutModal = useReactiveVar(checkoutModalVar)
   const usdConversion = useCoinConversion('usd', 'ETH')
   const { execute, steps, loading } = useBuyTokens()
   const { Title, Text } = Typography
@@ -48,29 +47,33 @@ export function CheckoutModal({
   }
 
   const handleCancel = () => {
-    CheckoutModalVar(false)
+    checkoutModalVar(false)
   }
 
   useEffect(() => {
     if (steps) {
+      // eslint-disable-next-line no-unsafe-optional-chaining
       const [finalStep] = steps?.slice(-1)
       const [step] = finalStep?.items || []
-      if (!step) return
+
+      if (!step) {
+        return
+      }
 
       if (step.status === 'complete') {
         setToast({
           message: `The transaction was completed hash: ${step.txHash.substring(0, 6)}...`,
           title: 'Success'
         })
-        CheckoutModalVar(false)
+        checkoutModalVar(false)
         onCallback && onCallback()
       }
     }
-  }, [steps])
+  }, [onCallback, steps])
 
   const nftSymbol = collection?.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
   const salePrice = expectedProfit ? (totalPrice + expectedProfit) / (tokens?.length || 1) : 0
-  const rss = collection?.royalties?.bps ? collection.royalties?.bps / 10000 : 0
+  const rss = collection?.royalties?.bps ? (collection?.royalties?.bps || 0) / 10000 : 0
   const buyRoyality = totalPrice * rss
 
   const nameCollectionSize = collection?.name?.length || 0
@@ -97,135 +100,149 @@ export function CheckoutModal({
           </FooterContainer>
         )
       }
-      open={CheckoutModal}
+      open={checkoutModal}
       onOk={handleOk}
       onCancel={handleCancel}
       maskClosable={false}
     >
-      <>
-        <CheckoutContainer>
-          <Col span={10}>
-            <TokenContainer>
-              <Text type='secondary'>
-                <strong>Collection</strong>
-              </Text>
-              <Image width={200} preview={false} style={{ borderRadius: '12px' }} src={collection?.image} />
-              <Title level={5}>{nameCollectionSize > 22 ? `${collection?.name?.slice(0, 22)}...` : collection?.name}</Title>
-              <Text type='secondary'>NFTFY Top Collections</Text>
-              <Card style={{ width: 240 }}>
-                <CardContainer>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <Text type='secondary'>Floor price</Text>
-                    <Text type='secondary'>Best offer</Text>
-                    <Text type='secondary'>RSS</Text>
+      <CheckoutContainer>
+        <Col span={10}>
+          <TokenContainer>
+            <Text type='secondary'>
+              <strong>Collection</strong>
+            </Text>
+            <Image width={200} preview={false} style={{ borderRadius: '12px' }} src={collection?.image} />
+            <Title level={5}>{nameCollectionSize > 22 ? `${collection?.name?.slice(0, 22)}...` : collection?.name}</Title>
+            <Text type='secondary'>NFTFY Top Collections</Text>
+            <Card style={{ width: 240 }}>
+              <CardContainer>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <Text type='secondary'>Floor price</Text>
+                  <Text type='secondary'>Best offer</Text>
+                  <Text type='secondary'>RSS</Text>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
+                    <Text>{collection?.floorAsk?.price?.amount?.native?.toFixed(4) || '0.0000'} ETH</Text>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                      <Text>{collection?.floorAsk?.price?.amount?.native?.toFixed(4) || '0.0000'} ETH</Text>
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                      <Text style={{ textAlign: 'center', width: '100%' }}>{collection?.floorAsk?.price?.amount?.native?.toFixed(4) || '0.0000'} ETH</Text>
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>{rss}%</div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
+                    <Text
+                      style={{
+                        textAlign: 'center',
+                        width: '100%'
+                      }}
+                    >
+                      {collection?.floorAsk?.price?.amount?.native?.toFixed(4) || '0.0000'} ETH
+                    </Text>
                   </div>
-                </CardContainer>
-              </Card>
-            </TokenContainer>
-          </Col>
-          <Col style={{ width: '100%' }}>
-            <Card size='small'
-              title={
-                <>
-                  <Row style={{ justifyContent: 'space-between' }}>
-                    <Col>Pay</Col>
-                    <Col>
-                      <div style={{ display: 'flex', gap: '5px' }}>
-                        <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
-                        {totalPrice} ETH
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                      <Text style={{ fontSize: '12px' }} type='secondary'>
-                        Balance: {userBalanceEth} ETH
-                      </Text>
-                      <Text style={{ fontSize: '12px' }} type='secondary'>
-                        {usdConversion && formatDollar(Number(userBalanceEth) * usdConversion)}
-                      </Text>
-                    </Col>
-                  </Row>
-                  <ArrowContainer>
-                    <Button style={{ position: 'absolute', transform: 'translate(498%,-2%)' }} size='middle' icon={<ArrowDownOutlined />} />
-                  </ArrowContainer>
-                </>
-              }
-              style={{ width: '100%', margin: '12px 0' }}
-            >
+                  <div style={{ display: 'flex', gap: '8px' }}>{rss}%</div>
+                </div>
+              </CardContainer>
+            </Card>
+          </TokenContainer>
+        </Col>
+        <Col style={{ width: '100%' }}>
+          <Card
+            size='small'
+            title={
               <>
                 <Row style={{ justifyContent: 'space-between' }}>
-                  <Col style={{ fontWeight: 600 }}>Receive & Flip</Col>
+                  <Col>Pay</Col>
                   <Col>
-                    <div style={{ display: 'flex', gap: '5px', fontWeight: 600 }}>
-                      <Image style={{ marginTop: '-3px', width: '16px' }} src={collection?.image} preview={false} />
-                      {tokens?.length} {nftSymbol}
+                    <div style={{ display: 'flex', gap: '5px' }}>
+                      <Image style={{ marginTop: '-3px', width: '16px' }} src='/icons/circle-eth.svg' preview={false} />
+                      {totalPrice} ETH
                     </div>
                   </Col>
                 </Row>
                 <Row>
-                  <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontWeight: 600 }}>
+                  <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <Text style={{ fontSize: '12px' }} type='secondary'>
-                      Balance: {userBalanceNft} {nftSymbol.length > 22 ? `${nftSymbol.slice(0, 22)}...` : nftSymbol}
+                      Balance: {userBalanceEth} ETH
                     </Text>
                     <Text style={{ fontSize: '12px' }} type='secondary'>
                       {usdConversion && formatDollar(Number(userBalanceEth) * usdConversion)}
                     </Text>
                   </Col>
                 </Row>
+                <ArrowContainer>
+                  <Button style={{ position: 'absolute', transform: 'translate(498%,-2%)' }} size='middle' icon={<ArrowDownOutlined />} />
+                </ArrowContainer>
               </>
-            </Card>
+            }
+            style={{ width: '100%', margin: '12px 0' }}
+          >
+            <>
+              <Row style={{ justifyContent: 'space-between' }}>
+                <Col style={{ fontWeight: 600 }}>Receive & Flip</Col>
+                <Col>
+                  <div style={{ display: 'flex', gap: '5px', fontWeight: 600 }}>
+                    <Image style={{ marginTop: '-3px', width: '16px' }} src={collection?.image} preview={false} />
+                    {tokens?.length} {nftSymbol}
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <Col style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontWeight: 600 }}>
+                  <Text style={{ fontSize: '12px' }} type='secondary'>
+                    Balance: {userBalanceNft} {nftSymbol.length > 22 ? `${nftSymbol.slice(0, 22)}...` : nftSymbol}
+                  </Text>
+                  <Text style={{ fontSize: '12px' }} type='secondary'>
+                    {usdConversion && formatDollar(Number(userBalanceEth) * usdConversion)}
+                  </Text>
+                </Col>
+              </Row>
+            </>
+          </Card>
 
-            <Card size='small' style={{ width: '100%' }}>
+          <Card size='small' style={{ width: '100%' }}>
+            <div
+              style={{
+                marginBottom: '8px',
+                backgroundColor: 'var(--green-1)',
+                border: '1px solid var(--green-6)',
+                borderRadius: '12px',
+                padding: '5px 12px'
+              }}
+            >
+              <CardContainer>
+                <Col style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <Text type='secondary'>Target Profit</Text>
+                  <Text type='secondary'>Expected Profit</Text>
+                </Col>
+                <Col style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                  <Text>{targetProfit}%</Text>
+                  <Text>{expectedProfit?.toFixed(4) || '0.0000'} ETH</Text>
+                </Col>
+              </CardContainer>
+            </div>
+            <CardContainer>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 12px' }}>
+                <Text type='secondary'>You will receive</Text>
+                <Text type='secondary'>Each NFT will be relisted at</Text>
+                <Text type='secondary'>Collection royalty</Text>
+                <Text type='secondary'>{nameCollectionSize > 22 ? `${collection?.name?.slice(0, 22)}...` : collection?.name} fee</Text>
+              </div>
               <div
                 style={{
-                  marginBottom: '8px',
-                  backgroundColor: 'var(--green-1)',
-                  border: '1px solid var(--green-6)',
-                  borderRadius: '12px',
-                  padding: '5px 12px'
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  flexDirection: 'column',
+                  gap: '10px',
+                  padding: '0 12px'
                 }}
               >
-                <CardContainer>
-                  <Col style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <Text type='secondary'>Target Profit</Text>
-                    <Text type='secondary'>Expected Profit</Text>
-                  </Col>
-                  <Col style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                    <Text>{targetProfit}%</Text>
-                    <Text>{expectedProfit?.toFixed(4) || '0.0000'} ETH</Text>
-                  </Col>
-                </CardContainer>
+                <Text>{expectedProfit?.toFixed(4)} ETH</Text>
+                <Text>{salePrice.toFixed(4)} ETH</Text>
+                <Text>{buyRoyality.toFixed(4)} ETH</Text>
+                <Text>{marketplaceFee?.toFixed(4) || '0.0000'} ETH</Text>
               </div>
-              <CardContainer>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 12px' }}>
-                  <Text type='secondary'>You will receive</Text>
-                  <Text type='secondary'>Each NFT will be relisted at</Text>
-                  <Text type='secondary'>Collection royalty</Text>
-                  <Text type='secondary'>{nameCollectionSize > 22 ? `${collection?.name?.slice(0, 22)}...` : collection?.name} fee</Text>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column', gap: '10px', padding: '0 12px' }}>
-                  <Text>{expectedProfit?.toFixed(4)} ETH</Text>
-                  <Text>{salePrice.toFixed(4)} ETH</Text>
-                  <Text>{buyRoyality.toFixed(4)} ETH</Text>
-                  <Text>{marketplaceFee?.toFixed(4) || '0.0000'} ETH</Text>
-                </div>
-              </CardContainer>
-            </Card>
-          </Col>
-        </CheckoutContainer>
-      </>
+            </CardContainer>
+          </Card>
+        </Col>
+      </CheckoutContainer>
     </Modal>
   )
 }

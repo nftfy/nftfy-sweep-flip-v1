@@ -3,7 +3,7 @@ import useSWR from 'swr'
 
 export default function useCoinConversion(
   vs_currency?: string,
-  symbols: string = 'eth'
+  symbols = 'eth'
 ) {
   const { data } = useSWR(
     vs_currency
@@ -11,7 +11,7 @@ export default function useCoinConversion(
       : null,
     fetcher,
     {
-      refreshInterval: 60 * 1000 * 5, //5m Interval
+      refreshInterval: 60 * 1000 * 5, // 5m Interval
       revalidateOnFocus: false,
       refreshWhenHidden: false,
     }

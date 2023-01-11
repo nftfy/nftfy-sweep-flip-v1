@@ -27,16 +27,22 @@ export const useCollections = (chainId: number) => {
       }
     }
 
-    let query: Query = {
+    const query: Query = {
       limit: 10,
       sortBy: '7DayVolume',
     }
 
-    if (id) query.id = id
-    if (name) query.name = name
-    if (nextPage) query.continuation = continuation
+    if (id) {
+      query.id = id
+    }
+    if (name) {
+      query.name = name
+    }
+    if (nextPage) {
+      query.continuation = continuation
+    }
 
-    const url = new URL(BASE_API_URL + COLLECTIONS_API_PATH)
+    const url = new URL(`${BASE_API_URL}${COLLECTIONS_API_PATH}`)
     const href = setParams(url, query)
 
     const res = await fetch(href, options)
@@ -70,6 +76,7 @@ function setParams(url: string | URL, query: { [x: string]: any }) {
     return `${url}?${searchParams.toString()}`
   }
   Object.keys(query).map((key) =>
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     url.searchParams.set(key, query[key]?.toString())
   )
   return url.href
