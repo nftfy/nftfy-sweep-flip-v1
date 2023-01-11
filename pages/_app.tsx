@@ -15,7 +15,7 @@ import {
 import { GlobalProvider } from 'context/GlobalState'
 import { ThemeProvider, useTheme } from 'next-themes'
 import type { AppContext, AppProps } from 'next/app'
-import { default as NextApp } from 'next/app'
+import NextApp from 'next/app'
 import { FC, useEffect, useState } from 'react'
 import { RecoilRoot } from 'recoil'
 import {
@@ -29,11 +29,11 @@ import { nftfyClient } from '../src/graphql/Client'
 // import '../styles/theme.light.less'
 import '../styles/global.less'
 
-
 config.autoAddCss = true
 // Select a custom ether.js interface for connecting to a network
 // Reference = https://wagmi-xyz.vercel.app/docs/provider#provider-optional
 // OPTIONAL
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 
 // API key for Ethereum node
@@ -42,7 +42,9 @@ const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID
 
 const THEME_SWITCHING_ENABLED = process.env.NEXT_PUBLIC_THEME_SWITCHING_ENABLED
 const DARK_MODE_ENABLED = process.env.NEXT_PUBLIC_DARK_MODE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PROXY_API_BASE = process.env.NEXT_PUBLIC_PROXY_API_BASE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const RESERVOIR_API_KEY = process.env.NEXT_PUBLIC_RESERVOIR_API_KEY
 const BODY_FONT_FAMILY = process.env.NEXT_PUBLIC_BODY_FONT_FAMILY || 'Inter'
 const FONT_FAMILY = process.env.NEXT_PUBLIC_FONT_FAMILY || 'Inter'
@@ -58,7 +60,7 @@ const SOURCE_NAME = process.env.NEXT_PUBLIC_SOURCE_NAME
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 
 const envChain = allChains.find(
-  (chain) => chain.id === +(CHAIN_ID || chainId.mainnet)
+  (currentChain) => currentChain.id === +(CHAIN_ID || chainId.mainnet)
 )
 
 const { chains, provider } = configureChains(
@@ -91,9 +93,11 @@ function AppWrapper(props: AppProps & { baseUrl: string }) {
   )
 }
 
+// eslint-disable-next-line react/function-component-definition,react/no-multi-comp
 const App: FC<AppProps & { baseUrl: string }> = ({
   Component,
   pageProps,
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
   baseUrl,
 }) => {
   const { theme } = useTheme()
@@ -109,12 +113,12 @@ const App: FC<AppProps & { baseUrl: string }> = ({
   const marketplaceTheme = THEME_SWITCHING_ENABLED ? theme : defaultTheme
 
   useEffect(() => {
-    const primaryColor = (PRIMARY_COLOR as string) || 'default'
+    const primaryColor = (PRIMARY_COLOR ) || 'default'
     const primaryColorPalette = (
       presetColors as Record<string, Record<string, string>>
     )[primaryColor]
 
-    if (marketplaceTheme == 'dark') {
+    if (marketplaceTheme === 'dark') {
       setReservoirKitTheme(
         darkTheme({
           headlineFont: FONT_FAMILY,
@@ -143,13 +147,13 @@ const App: FC<AppProps & { baseUrl: string }> = ({
         })
       )
     }
-  }, [defaultTheme, theme])
+  }, [defaultTheme, marketplaceTheme, theme])
 
   let options: ReservoirKitProviderProps['options'] = {
     apiKey: process.env.NEXT_PUBLIC_RESERVOIR_API_KEY || undefined,
     apiBase: process.env.NEXT_PUBLIC_RESERVOIR_API_BASE || "https://api-goerli.reservoir.tools",
     disablePoweredByReservoir:
-      DISABLE_POWERED_BY_RESERVOIR != undefined &&
+      DISABLE_POWERED_BY_RESERVOIR !== undefined &&
       DISABLE_POWERED_BY_RESERVOIR != null,
     source: SOURCE_DOMAIN,
   }
@@ -173,6 +177,8 @@ const App: FC<AppProps & { baseUrl: string }> = ({
                 theme={rainbowKitTheme}
                 modalSize="compact"
               >
+                {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                {/* @ts-ignore */}
                 <Component {...pageProps} />
               </RainbowKitProvider>
             </WagmiConfig>

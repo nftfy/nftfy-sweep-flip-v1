@@ -19,7 +19,7 @@
       "@config/chain": ["src/ChainConfig.ts"],
       "@config/global": ["src/GlobalConfig.ts"],
       "@appTypes/*": ["src/types/*"],
-      "@hook/*": ["src/hook/*"],
+      "@hook/*": ["src/hooks/*"],
       "@assets/*": ["public/assets/*"],
       "@components/*": ["src/components/*"],
       "@services/*": ["src/services/*"],
@@ -33,5 +33,5 @@
     "ui/index.js",
     "ui/buttons.js"
   ],
-  "exclude": ["node_modules", "components", "config", "styles", "public", "recoil"],
+  "exclude": ["node_modules"],
 }

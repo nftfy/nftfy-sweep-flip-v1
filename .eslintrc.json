@@ -17,6 +17,15 @@
     "plugin:import/warnings",
     "plugin:import/typescript"
   ],
+  "ignorePatterns": [
+    "node_modules/",
+    "components/*",
+    "config/*",
+    "context/*",
+    "hooks/*",
+    "lib/*",
+    "recoil/*"
+  ],
   "plugins": [
     "@typescript-eslint",
     "import"
