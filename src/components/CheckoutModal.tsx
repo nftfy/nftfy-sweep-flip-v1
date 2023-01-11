@@ -8,7 +8,9 @@ import { paths } from '@reservoir0x/reservoir-kit-client'
 import { useEffect } from 'react'
 import useCoinConversion from 'src/hooks/useCoinConversion'
 import { formatDollar } from 'lib/numbers'
+import { useListTokens } from '@hook/useListTokens'
 import { setToast } from './shared/setToast'
+import { units } from '../utils'
 
 type Tokens = paths['/tokens/v5']['get']['responses']['200']['schema']['tokens']
 
@@ -40,6 +42,7 @@ export function CheckoutModal({
   const checkoutModal = useReactiveVar(checkoutModalVar)
   const usdConversion = useCoinConversion('usd', 'ETH')
   const { execute, steps, loading } = useBuyTokens()
+  const { execute: relist, steps: relistSteps, loading: relistLoading } = useListTokens()
   const { Title, Text } = Typography
 
   const handleOk = () => {
@@ -51,25 +54,48 @@ export function CheckoutModal({
   }
 
   useEffect(() => {
-    if (steps) {
-      // eslint-disable-next-line no-unsafe-optional-chaining
-      const [finalStep] = steps?.slice(-1)
-      const [step] = finalStep?.items || []
-
-      if (!step) {
-        return
-      }
-
-      if (step.status === 'complete') {
-        setToast({
-          message: `The transaction was completed hash: ${step.txHash.substring(0, 6)}...`,
-          title: 'Success'
-        })
-        checkoutModalVar(false)
-        onCallback && onCallback()
-      }
+    if (!steps) {
+      return
     }
-  }, [onCallback, steps])
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    const [finalStep] = steps?.slice(-1)
+    const [step] = finalStep?.items || []
+
+    if (!step || !tokens || !tokens[0]?.token?.contract) {
+      return
+    }
+
+    if (step.status === 'complete') {
+      relist({
+        token: `${tokens[0]?.token?.contract}`,
+        marketplaces: ['opensea', 'x2y2', 'looks-rare'],
+        requiresChecking: true,
+        weiPrice: units(totalPrice?.toString(), 18)
+      })
+    }
+  }, [relist, steps, tokens, totalPrice])
+
+  useEffect(() => {
+    if (!relistSteps) {
+      return
+    }
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    const [finalStep] = relistSteps?.slice(-1)
+    const [step] = finalStep?.items || []
+
+    if (!step) {
+      return
+    }
+
+    if (step.status === 'complete') {
+      setToast({
+        message: `The transaction was completed hash: ${step.txHash.substring(0, 6)}...`,
+        title: 'Success'
+      })
+      checkoutModalVar(false)
+      onCallback && onCallback()
+    }
+  }, [relistSteps, onCallback])
 
   const nftSymbol = collection?.name ? collection?.name.split(' ')[0].toUpperCase() : 'NFT'
   const salePrice = expectedProfit ? (totalPrice + expectedProfit) / (tokens?.length || 1) : 0
@@ -85,7 +111,7 @@ export function CheckoutModal({
       title='Sweep & Flip'
       width={740}
       footer={
-        !loading ? (
+        !loading && !relistLoading ? (
           <FooterContainer>
             <Button style={{ width: 210 }} onClick={handleCancel}>
               Cancel

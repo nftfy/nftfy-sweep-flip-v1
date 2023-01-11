@@ -6,7 +6,7 @@ import message from "src/message";
 import { useSigner } from "wagmi";
 
 type SupportedMarketplaces = 'opensea' | 'x2y2' | 'looks-rare'
-type Listing = definitions["Model300"]
+type Listing = definitions["Model297"]
 
 const ETH_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -18,9 +18,9 @@ interface Fee {
 interface ExecuteListTokensProps {
   token: string
   weiPrice: string
-  expirationTime: string
-  fees: Fee[]
-  currencyAddress: string
+  expirationTime?: string
+  fee?: Fee
+  currencyAddress?: string
   requiresChecking: boolean
   marketplaces: SupportedMarketplaces[]
 }
@@ -33,7 +33,7 @@ export const useListTokens = () => {
   const [errors, setErrors] = useState<any | undefined>(undefined)
   const [transaction, setTransaction] = useState<any | undefined>(undefined)
 
-  async function execute ({ weiPrice, token, expirationTime, fees, requiresChecking, marketplaces, currencyAddress = ETH_ADDRESS }: ExecuteListTokensProps) {
+  async function execute ({ weiPrice, token, expirationTime, fee, requiresChecking, marketplaces, currencyAddress = ETH_ADDRESS }: ExecuteListTokensProps) {
     try {
       setLoading(true)
       setErrors(undefined)
@@ -54,7 +54,8 @@ export const useListTokens = () => {
           weiPrice,
           orderbook: marketplace,
           orderKind: marketplace === 'opensea' ? 'seaport' : marketplace,
-          fees: fees.map(({ address, basisPoint }) => `${address}:${basisPoint}`),
+          fee: fee?.basisPoint,
+          feeRecipient: fee?.address,
           expirationTime,
           currency: currencyAddress
         }
@@ -63,11 +64,11 @@ export const useListTokens = () => {
       await reservoirClient.actions.listToken({
         listings,
         signer,
-        onProgress: (steps: Execute["steps"]) => {
-          if (!steps) {
+        onProgress: (currentSteps: Execute["steps"]) => {
+          if (!currentSteps) {
             return
           }
-          setSteps(steps)
+          setSteps(currentSteps)
         },
         precheck: requiresChecking
       })
