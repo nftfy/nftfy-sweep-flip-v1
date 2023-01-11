@@ -107,7 +107,7 @@ export function CollectionSelectModal({ chainId, onSelect }: CollectionSelectMod
                     <CollectionButtonContainer>
                       <CollectionImage
                         src={item?.image}
-                        diameter={24}
+                        diameter={25}
                         address={item?.id}
                         loading={loading}
                         borderSize='1px'
