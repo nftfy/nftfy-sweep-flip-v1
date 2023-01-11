@@ -30,7 +30,7 @@ const SettingsButton = ({ settingsType }: SettingsProps) => {
         <SettingsContainer>
             <div>
                 <Text strong>Sweep Rules</Text>
-                <Checkbox.Group options={sweepRules} onChange={(checkedValues) =>  sweepRulesSettingsVar(checkedValues as string[])} />
+                <Checkbox.Group options={sweepRules}  defaultValue={['skipPending', 'skipSuspicious']} onChange={(checkedValues) =>  sweepRulesSettingsVar(checkedValues as string[])} />
             </div>
             {settingsType === 'sweepFlip' && (
                 <div>
