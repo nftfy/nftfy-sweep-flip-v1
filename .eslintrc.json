@@ -24,7 +24,8 @@
     "context/*",
     "hooks/*",
     "lib/*",
-    "recoil/*"
+    "recoil/*",
+    "pages/_document.tsx"
   ],
   "plugins": [
     "@typescript-eslint",

@@ -11,7 +11,7 @@ import { Tokens, useTokens } from 'src/hooks/useTokens'
 import Link from 'antd/lib/typography/Link'
 import { calculateProfit, OPENSEA_FEE } from '../utils/index'
 import useHandleeInputs from '../hooks/useHandleInputs'
-import { CollectionSelectModal, CollectionSelectModalVar } from './collection-select/CollectionSelectModal'
+import { CollectionSelectModal, collectionSelectModalVar } from './collection-select/CollectionSelectModal'
 import { ReservoirCollection } from '../types/ReservoirCollection'
 import SliderTokens from './shared/SliderTokens'
 import { SweepModal, SweepModalVar } from './SweepModal'
@@ -28,7 +28,7 @@ interface FormCardProps {
 function FormCard({ chainId }: FormCardProps) {
   const account = useAccount()
   const usdConversion = useCoinConversion('usd', 'ETH')
-  const modalCollection = useReactiveVar(CollectionSelectModalVar)
+  const modalCollection = useReactiveVar(collectionSelectModalVar)
   const modalCheckout = useReactiveVar(checkoutModalVar)
   const sweepModal = useReactiveVar(SweepModalVar)
   const { tokens, fetchTokens } = useTokens(chainId)
@@ -290,7 +290,7 @@ function FormCard({ chainId }: FormCardProps) {
                     </Left>
                     <Right>
                       {collectionData ? (
-                        <Button size='large' onClick={() => CollectionSelectModalVar(true)}>
+                        <Button size='large' onClick={() => collectionSelectModalVar(true)}>
                           <Space>
                             <Image
                               preview={false}
@@ -305,7 +305,7 @@ function FormCard({ chainId }: FormCardProps) {
                           </Space>
                         </Button>
                       ) : (
-                        <Button type='primary' size='large' onClick={() => CollectionSelectModalVar(true)}>
+                        <Button type='primary' size='large' onClick={() => collectionSelectModalVar(true)}>
                           <Space>
                             <div>Select collection</div> <FaAngleDown />
                           </Space>

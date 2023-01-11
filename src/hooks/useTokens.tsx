@@ -25,14 +25,13 @@ export const useTokens = (chainId: number) => {
       }
     }
 
-     let query: Query = {
+     const query: Query = {
       limit: 20,
       sortBy: 'floorAskPrice',
       collection: id
     }
 
-
-    const url = new URL(BASE_API_URL + TOKENS_API_PATH)
+    const url = new URL(`${BASE_API_URL}${TOKENS_API_PATH}`)
     const href = setParams(url, query)
 
     const res = await fetch(href, options)
@@ -51,6 +50,7 @@ function setParams(url: string | URL, query: { [x: string]: any }) {
     return `${url}?${searchParams.toString()}`
   }
   Object.keys(query).map((key) =>
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     url.searchParams.set(key, query[key]?.toString())
   )
   return url.href

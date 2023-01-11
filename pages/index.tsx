@@ -54,6 +54,7 @@ const Home: NextPage<Props> = () => {
   // Return error page if the API base url or the environment's
   // chain ID are missing
   if (!CHAIN_ID) {
+    // eslint-disable-next-line no-console
     console.debug({ CHAIN_ID })
     return <div>There was an error</div>
   }

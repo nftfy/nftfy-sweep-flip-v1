@@ -9,15 +9,14 @@ interface SliderProps {
   onPlus: () => void
   onMinus: () => void
   onChangeAmount: (amount: number) => void
-
 }
 
-const SliderTokens = ({ amount, minAmount = 1, maxAmount, onPlus, onMinus, onChangeAmount }: SliderProps) => {
+function SliderTokens({ amount, minAmount = 1, maxAmount, onPlus, onMinus, onChangeAmount }: SliderProps) {
   return (
     <SliderContainer>
       <MinusIcon style={{ cursor: 'pointer', color: 'var(--primary-color)', width: '1rem' }} onClick={onMinus} />
       <Slider onChange={onChangeAmount} value={Number(amount)} style={{ width: '100%' }} min={minAmount} max={maxAmount} />
-      <PlusIcon onClick={onPlus}/>
+      <PlusIcon onClick={onPlus} />
     </SliderContainer>
   )
 }
@@ -50,8 +49,7 @@ const { MinusIcon, PlusIcon, SliderContainer } = {
 
       transition: opacity 0.2s;
     }
-  `,
+  `
 }
-
 
 export default SliderTokens
